@@ -1,6 +1,12 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // ==========================================
+    // HELPERS
+    // ==========================================
+
     function signedIn() {
       return request.auth != null;
     }
@@ -9,43 +15,261 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
+    function adminPath() {
+      return /databases/$(database)/documents/trainingAdmins/$(request.auth.uid);
+    }
+
     function isAdmin() {
       return signedIn()
-        && exists(/databases/$(database)/documents/trainingAdmins/$(request.auth.uid))
-        && get(/databases/$(database)/documents/trainingAdmins/$(request.auth.uid)).data.active == true;
+        && exists(adminPath())
+        && get(adminPath()).data.active == true;
     }
 
-    // Admin authorization records are bootstrapped from Firebase Console.
+    function isSuperAdmin() {
+      return isAdmin()
+        && (
+          get(adminPath()).data.role == "superadmin"
+          || get(adminPath()).data.role == "admin"
+        );
+    }
+
+    function isManager() {
+      return isAdmin()
+        && get(adminPath()).data.role == "manager";
+    }
+
+    function managerTeams() {
+      return isManager()
+        ? get(adminPath()).data.get("teamIds", [])
+        : [];
+    }
+
+    function canManageTeam(teamId) {
+      return isSuperAdmin()
+        || (
+          isManager()
+          && teamId != null
+          && teamId in managerTeams()
+        );
+    }
+
+    function canManageRegistrationData(data) {
+      return isSuperAdmin()
+        || (
+          isManager()
+          && data != null
+          && data.get("teamId", "") in managerTeams()
+        );
+    }
+
+    function canManageUser(uid) {
+      return isSuperAdmin()
+        || (
+          isManager()
+          && exists(
+            /databases/$(database)/documents/trainingRegistrations/$(uid)
+          )
+          && get(
+            /databases/$(database)/documents/trainingRegistrations/$(uid)
+          ).data.get("teamId", "") in managerTeams()
+        );
+    }
+
+
+    // ==========================================
+    // ADMINISTRADORES
+    // ==========================================
+
     match /trainingAdmins/{uid} {
-      allow read: if isSelf(uid) || isAdmin();
-      allow write: if false;
+
+      allow read: if isSelf(uid) || isSuperAdmin();
+
+      // El superadmin puede crear managers.
+      allow create, update, delete: if isSuperAdmin();
     }
 
-    // Each trainee can read/write only their own training record.
-    // Authorized admins can read, update, and delete every record.
+
+    // ==========================================
+    // PARTICIPANTES
+    // ==========================================
+
     match /trainingRegistrations/{uid} {
-      allow read: if isSelf(uid) || isAdmin();
-      allow create, update: if isSelf(uid) || isAdmin();
-      allow delete: if isAdmin();
+
+      allow read: if isSelf(uid)
+        || canManageRegistrationData(resource.data);
+
+      // El usuario puede crear su propio perfil.
+      allow create: if isSelf(uid)
+        || canManageRegistrationData(request.resource.data);
+
+      // El usuario puede actualizar su propio progreso,
+      // pero no puede asignarse a otro equipo.
+      allow update: if (
+          isSelf(uid)
+          && request.resource.data.get("teamId", "")
+             == resource.data.get("teamId", "")
+        )
+        || canManageRegistrationData(resource.data)
+        || canManageRegistrationData(request.resource.data);
+
+      allow delete: if canManageRegistrationData(resource.data);
     }
 
-    // Access state is readable by the trainee, but only admins can change it.
+
+    // ==========================================
+    // CONTROL DE ACCESO
+    // ==========================================
+
     match /trainingAccess/{uid} {
-      allow read: if isSelf(uid) || isAdmin();
-      allow create, update, delete: if isAdmin();
+
+      allow read: if isSelf(uid) || canManageUser(uid);
+
+      // El usuario puede eliminar un registro archived antiguo
+      // para volver a crear su perfil normalmente.
+      allow delete: if (
+          isSelf(uid)
+          && resource.data.get("status", "") == "archived"
+        )
+        || canManageUser(uid);
+
+      allow create, update: if canManageUser(uid);
     }
 
-    // Presence heartbeats are written by the signed-in trainee and observed by admins.
+
+    // ==========================================
+    // PRESENCIA EN TIEMPO REAL
+    // ==========================================
+
     match /trainingPresence/{uid} {
-      allow read: if isSelf(uid) || isAdmin();
-      allow create, update: if isSelf(uid) || isAdmin();
-      allow delete: if isSelf(uid) || isAdmin();
+
+      allow read: if isSelf(uid) || canManageUser(uid);
+
+      allow create, update: if isSelf(uid) || canManageUser(uid);
+
+      allow delete: if isSelf(uid) || canManageUser(uid);
     }
 
-    // Private admin notes never become participant-readable.
+
+    // ==========================================
+    // NOTAS PRIVADAS DEL ADMIN
+    // ==========================================
+
     match /trainingAdminNotes/{uid} {
-      allow read, write: if isAdmin();
+
+      allow read, create, update, delete: if canManageUser(uid);
     }
+
+
+    // ==========================================
+    // EQUIPOS / WAVES / COHORTS
+    // ==========================================
+
+    match /trainingTeams/{teamId} {
+
+      // Participantes pueden leer equipos para mostrar
+      // correctamente su ruta y nombre de cohort.
+      allow read: if signedIn();
+
+      // Solo superadmins pueden crear/eliminar equipos.
+      allow create, delete: if isSuperAdmin();
+
+      // Superadmin o manager del equipo.
+      allow update: if canManageTeam(teamId);
+    }
+
+
+    // ==========================================
+    // ASIGNACIONES
+    // ==========================================
+
+    match /trainingAssignments/{assignmentId} {
+
+      // El trainee ve solamente sus asignaciones.
+      allow read: if signedIn()
+        && (
+          resource.data.uid == request.auth.uid
+          || canManageUser(resource.data.uid)
+        );
+
+      // Managers/superadmins crean asignaciones.
+      allow create: if isAdmin()
+        && canManageUser(request.resource.data.uid);
+
+      // El usuario puede actualizar su propia asignación
+      // para marcar progreso/completado.
+      // Managers también pueden actualizarla.
+      allow update: if signedIn()
+        && (
+          resource.data.uid == request.auth.uid
+          || canManageUser(resource.data.uid)
+        );
+
+      allow delete: if isAdmin()
+        && canManageUser(resource.data.uid);
+    }
+
+
+    // ==========================================
+    // INTENTOS DE CERTIFICACION
+    // ==========================================
+
+    match /trainingCertificationAttempts/{attemptId} {
+
+      allow read: if signedIn()
+        && (
+          resource.data.uid == request.auth.uid
+          || canManageUser(resource.data.uid)
+        );
+
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid;
+
+      allow update: if signedIn()
+        && resource.data.uid == request.auth.uid;
+
+      allow delete: if isAdmin()
+        && canManageUser(resource.data.uid);
+    }
+
+
+    // ==========================================
+    // BORRADOR DE CERTIFICACION
+    // Un documento por UID.
+    // ==========================================
+
+    match /trainingCertificationDrafts/{uid} {
+
+      allow read, create, update, delete: if isSelf(uid)
+        || canManageUser(uid);
+    }
+
+
+    // ==========================================
+    // SESIONES / TIEMPO ACTIVO
+    // ==========================================
+
+    match /trainingSessions/{sessionId} {
+
+      allow read: if signedIn()
+        && (
+          resource.data.uid == request.auth.uid
+          || canManageUser(resource.data.uid)
+        );
+
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid;
+
+      allow update: if signedIn()
+        && resource.data.uid == request.auth.uid;
+
+      allow delete: if isAdmin()
+        && canManageUser(resource.data.uid);
+    }
+
+
+    // ==========================================
+    // BLOQUEAR TODO LO DEMAS
+    // ==========================================
 
     match /{document=**} {
       allow read, write: if false;
