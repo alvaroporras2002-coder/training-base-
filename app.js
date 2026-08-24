@@ -3719,92 +3719,107 @@ ${xrefOffset}
     }
   }
 
-  $("startCertification").onclick =
-    startExam;
+  setClick(
+  "startCertification",
+  startExam
+);
 
-  $("questionOptions")
-    .addEventListener(
-      "click",
-      event => {
-        const button =
-          event.target.closest(
-            "[data-answer]"
-          );
+const questionOptions =
+  $("questionOptions");
 
-        if(
-          !button ||
-          !exam ||
-          submitting
-        ){
-          return;
-        }
-
-        const q =
-          questions()[
-            exam.index
-          ];
-
-        exam.answers[
-          q.id
-        ] =
-          button.dataset.answer;
-
-        saveExam();
-        renderExam();
-      }
-    );
-
-  $("prevQuestion").onclick =
-    () => {
-      if(
-        !exam ||
-        submitting
-      ){
-        return;
-      }
-
-      exam.index =
-        Math.max(
-          0,
-          exam.index -
-          1
+if (questionOptions) {
+  questionOptions.addEventListener(
+    "click",
+    event => {
+      const button =
+        event.target.closest(
+          "[data-answer]"
         );
 
-      saveExam();
-      renderExam();
-    };
-
-  $("nextQuestion").onclick =
-    () => {
-      if(
+      if (
+        !button ||
         !exam ||
         submitting
-      ){
+      ) {
         return;
       }
 
       const qs =
         questions();
 
-      if(
-        exam.index >=
-        qs.length -
-        1
-      ){
-        finishExam(false);
-      }else{
-        exam.index++;
+      const q =
+        qs[exam.index];
 
-        saveExam();
-        renderExam();
+      if (!q) {
+        return;
       }
-    };
 
-  $("retryCertification").onclick =
-    startExam;
+      exam.answers[q.id] =
+        button.dataset.answer;
 
-  $("downloadCertificate").onclick =
-    downloadCertificatePdf;
+      saveExam();
+      renderExam();
+    }
+  );
+}
+
+setClick(
+  "prevQuestion",
+  () => {
+    if (
+      !exam ||
+      submitting
+    ) {
+      return;
+    }
+
+    exam.index =
+      Math.max(
+        0,
+        exam.index - 1
+      );
+
+    saveExam();
+    renderExam();
+  }
+);
+
+setClick(
+  "nextQuestion",
+  () => {
+    if (
+      !exam ||
+      submitting
+    ) {
+      return;
+    }
+
+    const qs =
+      questions();
+
+    if (
+      exam.index >=
+      qs.length - 1
+    ) {
+      finishExam(false);
+    } else {
+      exam.index++;
+
+      saveExam();
+      renderExam();
+    }
+  }
+);
+
+setClick(
+  "retryCertification",
+  startExam
+);
+
+setClick(
+  "downloadCertificate",
+  downloadCertificatePdf
+);
 
   if(
     exam &&
