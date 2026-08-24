@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/trainingAdmins/$(request.auth.uid))
+        && get(/databases/$(database)/documents/trainingAdmins/$(request.auth.uid)).data.active == true;
+    }
+
+    // Admin authorization records are bootstrapped from Firebase Console.
+    match /trainingAdmins/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow write: if false;
+    }
+
+    // Each trainee can read/write only their own training record.
+    // Authorized admins can read, update, and delete every record.
+    match /trainingRegistrations/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow create, update: if isSelf(uid) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Access state is readable by the trainee, but only admins can change it.
+    match /trainingAccess/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Presence heartbeats are written by the signed-in trainee and observed by admins.
+    match /trainingPresence/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow create, update: if isSelf(uid) || isAdmin();
+      allow delete: if isSelf(uid) || isAdmin();
+    }
+
+    // Private admin notes never become participant-readable.
+    match /trainingAdminNotes/{uid} {
+      allow read, write: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

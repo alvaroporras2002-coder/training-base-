@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Training Admin Console v14</title>
+<style>
+:root{--red:#eb1700;--ink:#171717;--muted:#66707a;--line:#e1e5e9;--soft:#f5f7f9;--panel:#fff;--green:#157c3c;--amber:#8a5d00;--danger:#a72a20;--purple:#7047eb;--blue:#2d64c8;--shadow:0 22px 70px rgba(0,0,0,.17)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#f3f5f7;color:var(--ink)}button,input,select,textarea{font:inherit}button{cursor:pointer}[hidden]{display:none!important}.muted{color:var(--muted)}.tiny{font-size:11px}
+.btn{border:1px solid #d2d7dc;background:#fff;color:#171717;border-radius:999px;padding:9px 14px;font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:7px}.btn:hover{background:#f8f8f8}.btn.red{background:var(--red);border-color:var(--red);color:#fff}.btn.dark{background:#171717;border-color:#171717;color:#fff}.btn.danger{background:#fff3f2;border-color:#efc2bd;color:var(--danger)}.btn.google{border-color:#cbd1d6}.btn:disabled{opacity:.55;cursor:not-allowed}.full{width:100%}
+.login{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 82% 18%,rgba(112,71,235,.34),transparent 32%),radial-gradient(circle at 14% 82%,rgba(235,23,0,.28),transparent 36%),linear-gradient(135deg,#08090c,#19141f 55%,#0d1117)}.login-card{width:min(490px,95vw);background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 30px 110px rgba(0,0,0,.52)}.login-head{padding:30px;background:linear-gradient(135deg,#eb1700,#ff6748 52%,#7047eb);color:#fff}.login-head b{font-size:11px;letter-spacing:.1em}.login-head h1{font-size:31px;margin:26px 0 8px}.login-head p{margin:0;color:rgba(255,255,255,.9);line-height:1.5}.login-body{padding:28px 30px}.divider{display:flex;align-items:center;gap:10px;color:#9aa0a6;font-size:10px;margin:15px 0}.divider:before,.divider:after{content:"";height:1px;background:#e4e7ea;flex:1}
+.field{display:grid;gap:6px;margin-bottom:13px}.field label{font-size:11px;font-weight:800}.field input,.field select,.field textarea{width:100%;border:1px solid #cfd5db;border-radius:10px;background:#fff;color:#171717;padding:10px 11px;outline:0}.field input:focus,.field select:focus,.field textarea:focus{border-color:#111;box-shadow:0 0 0 3px rgba(17,17,17,.07)}.field textarea{min-height:92px;resize:vertical}.message{display:none;margin-top:12px;padding:11px 12px;border-radius:10px;font-size:12px;line-height:1.45}.message.show{display:block}.message.error{background:#fff0ef;border:1px solid #efc3be;color:#982218}.message.info{background:#eef5ff;border:1px solid #ccdafa;color:#294d83}
+.denied{min-height:100vh;display:grid;place-items:center;padding:24px}.denied-card{width:min(560px,95vw);background:#fff;border:1px solid var(--line);border-radius:20px;padding:34px;text-align:center;box-shadow:var(--shadow)}
+.topbar{height:66px;position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 22px}.brand{font-weight:950;color:var(--red);letter-spacing:.04em}.topbar h1{font-size:16px;margin:0}.spacer{flex:1}.admin-id{text-align:right;min-width:0}.admin-id b,.admin-id span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}.admin-id b{font-size:12px}.admin-id span{font-size:10px;color:var(--muted)}
+.main{max-width:1650px;margin:auto;padding:28px 30px 70px}.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:20px}.page-head h2{font-size:30px;margin:0 0 6px}.page-head p{margin:0;color:var(--muted);line-height:1.5}.actions{display:flex;gap:8px;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:18px}.stat{background:#fff;border:1px solid var(--line);border-radius:15px;padding:16px}.stat span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:800}.stat b{display:block;font-size:27px;margin-top:8px}.stat small{display:block;font-size:10px;color:var(--muted);margin-top:4px}.stat.online b{color:var(--green)}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}.card-head{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}.card-head h3{margin:0;font-size:15px}.realtime{display:inline-flex;align-items:center;gap:6px;font-size:10px;color:var(--green);font-weight:800}.realtime i{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 5px rgba(21,124,60,.10)}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px;border-bottom:1px solid var(--line)}.toolbar input,.toolbar select{height:40px;border:1px solid #d3d8dd;border-radius:10px;background:#fff;padding:0 11px}.toolbar input{flex:1;min-width:250px}.table-wrap{overflow:auto;max-height:690px}.table{width:100%;border-collapse:collapse;min-width:1250px}.table th,.table td{padding:12px 11px;border-bottom:1px solid #edf0f2;text-align:left;font-size:11px;white-space:nowrap}.table th{position:sticky;top:0;z-index:2;background:#fafbfc;color:#58616d;font-size:10px;text-transform:uppercase;letter-spacing:.03em}.table tr:hover td{background:#fcfcfd}.person{display:flex;align-items:center;gap:9px}.avatar{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#fff0ed,#eee9ff);display:grid;place-items:center;font-weight:900;color:#9f2d20}.person b,.person span{display:block}.person b{font-size:12px}.person span{font-size:10px;color:var(--muted);max-width:230px;overflow:hidden;text-overflow:ellipsis}
+.status{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:900}.status.active{background:#eaf8ef;color:#14783b}.status.blocked{background:#fff0ef;color:#a3261c}.status.archived{background:#eceff2;color:#59616a}.status.pending{background:#fff5d9;color:#805b00}.presence{display:inline-flex;align-items:center;gap:6px;font-weight:850}.presence i{width:8px;height:8px;border-radius:50%;background:#aab1b8}.presence.online{color:var(--green)}.presence.online i{background:var(--green);box-shadow:0 0 0 4px rgba(21,124,60,.10)}
+.bar{width:90px;height:7px;border-radius:999px;background:#eceff2;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#eb1700,#7047eb)}.empty{padding:52px;text-align:center;color:var(--muted)}.footer-note{padding:13px 17px;border-top:1px solid var(--line);font-size:10px;color:var(--muted);line-height:1.5}
+.modal-bg{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.54);display:grid;place-items:center;padding:22px}.modal{width:min(900px,97vw);max-height:92vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:var(--shadow)}.modal-head,.modal-foot{position:sticky;background:#fff;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:16px 19px}.modal-head{top:0;border-bottom:1px solid var(--line)}.modal-foot{bottom:0;border-top:1px solid var(--line)}.modal-head h3{margin:0;font-size:20px}.close{border:0;background:transparent;font-size:25px}.modal-body{padding:19px}.detail-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-bottom:18px}.detail-stat{border:1px solid var(--line);border-radius:12px;padding:10px}.detail-stat span{font-size:9px;color:var(--muted);text-transform:uppercase}.detail-stat b{display:block;font-size:18px;margin-top:5px;overflow:hidden;text-overflow:ellipsis}.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.modal-grid .field{margin:0}.modal-grid .wide{grid-column:1/-1}.switch-row{display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:11px;padding:10px 12px}.switch-row input{width:auto}.profile-disabled{padding:10px 12px;border:1px solid #ead7a4;background:#fff9e9;border-radius:11px;color:#765600;font-size:11px;line-height:1.45;margin-bottom:12px}.toast{position:fixed;right:20px;bottom:20px;z-index:200;background:#171717;color:#fff;padding:11px 14px;border-radius:10px;box-shadow:var(--shadow);font-size:12px;opacity:0;transform:translateY(8px);transition:.18s;pointer-events:none}.toast.show{opacity:1;transform:none}
+@media(max-width:1150px){.stats{grid-template-columns:repeat(3,1fr)}}@media(max-width:720px){.main{padding:20px 13px 60px}.page-head{flex-direction:column}.stats{grid-template-columns:repeat(2,1fr)}.topbar{padding:0 12px}.topbar h1,.admin-id span{display:none}.modal-grid,.detail-stats{grid-template-columns:1fr}.modal-grid .wide{grid-column:auto}.modal-foot{flex-direction:column;align-items:stretch}.login-head,.login-body{padding-left:22px;padding-right:22px}}
+</style>
+</head>
+<body>
+<section id="loginScreen" class="login">
+  <div class="login-card">
+    <div class="login-head"><b>DOORDASH · TRAINING</b><h1>Administración de usuarios</h1><p>Accede con una cuenta administrativa autorizada en Firebase.</p></div>
+    <div class="login-body">
+      <form id="loginForm">
+        <div class="field"><label for="loginEmail">Correo administrativo</label><input id="loginEmail" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="loginPassword">Contraseña</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
+        <button id="loginButton" class="btn red full" type="submit">Iniciar sesión</button>
+      </form>
+      <div class="divider">o</div>
+      <button id="googleAdminButton" class="btn google full" type="button">G · Continuar con Google</button>
+      <div id="loginMessage" class="message"></div>
+      <p class="tiny muted" style="line-height:1.5;margin:16px 0 0">La cuenta debe existir en Firebase Authentication y su UID debe tener un documento activo en <code>trainingAdmins/{uid}</code>. La contraseña nunca se guarda en este HTML.</p>
+    </div>
+  </div>
+</section>
+
+<section id="deniedScreen" class="denied" hidden>
+  <div class="denied-card"><h2>Acceso administrativo requerido</h2><p id="deniedText" class="muted">Esta cuenta no está autorizada para ver la base de datos.</p><button id="deniedLogout" class="btn red">Cerrar sesión</button></div>
+</section>
+
+<section id="appScreen" hidden>
+  <header class="topbar"><div class="brand">DOORDASH</div><h1>Training Admin Console v14</h1><div class="spacer"></div><div class="admin-id"><b id="adminName">Administrador</b><span id="adminEmail"></span></div><button id="logoutButton" class="btn">Cerrar sesión</button></header>
+  <main class="main">
+    <div class="page-head"><div><h2>Usuarios de capacitación</h2><p>Los registros, el progreso y la presencia se actualizan con listeners en tiempo real. No necesitas recargar la página.</p></div><div class="actions"><button id="refreshButton" class="btn">Reconectar</button><button id="exportButton" class="btn dark">Exportar CSV</button></div></div>
+    <section class="stats">
+      <div class="stat"><span>Registrados</span><b id="statRegistered">0</b><small>Perfiles con datos</small></div>
+      <div class="stat online"><span>En línea</span><b id="statOnline">0</b><small>Heartbeat reciente</small></div>
+      <div class="stat"><span>Activos</span><b id="statActive">0</b><small>Acceso habilitado</small></div>
+      <div class="stat"><span>Bloqueados</span><b id="statBlocked">0</b><small>Acceso pausado</small></div>
+      <div class="stat"><span>Últimas 24 h</span><b id="statRecent">0</b><small>Vistos recientemente</small></div>
+      <div class="stat"><span>Progreso medio</span><b id="statProgress">0%</b><small>Promedio de usuarios</small></div>
+    </section>
+    <section class="card">
+      <div class="card-head"><h3>Base de datos de participantes</h3><div style="display:flex;gap:14px;align-items:center"><span class="realtime"><i></i>Tiempo real</span><span id="rowCount" class="tiny muted">0 usuarios</span></div></div>
+      <div class="toolbar"><input id="searchInput" placeholder="Buscar por nombre, correo, equipo, ID, ubicación o UID"><select id="statusFilter"><option value="all">Todos los estados</option><option value="active">Activos</option><option value="blocked">Bloqueados</option><option value="archived">Archivados</option></select><select id="presenceFilter"><option value="all">Todos</option><option value="online">En línea</option><option value="offline">Desconectados</option></select><select id="teamFilter"><option value="all">Todos los equipos</option></select></div>
+      <div class="table-wrap"><table class="table"><thead><tr><th>Usuario</th><th>Equipo / ubicación</th><th>Estado</th><th>Conexión</th><th>Progreso</th><th>Score</th><th>Casos</th><th>Visitas</th><th>Último acceso</th><th>Acciones</th></tr></thead><tbody id="userRows"></tbody></table><div id="emptyState" class="empty" hidden>No hay usuarios que coincidan con los filtros.</div></div>
+      <div class="footer-note">Los participantes usan Firebase Authentication con Google. El simulador escribe un heartbeat en <code>trainingPresence/{uid}</code> y sincroniza el progreso dentro de <code>trainingRegistrations/{uid}.progress</code>. Las notas privadas siguen separadas y solo son visibles para administradores autorizados.</div>
+    </section>
+  </main>
+</section>
+
+<div id="userModal" class="modal-bg" hidden>
+  <section class="modal">
+    <header class="modal-head"><div><h3 id="modalTitle">Administrar usuario</h3><div id="modalSubtitle" class="tiny muted"></div></div><button id="modalClose" class="close" aria-label="Cerrar">×</button></header>
+    <div class="modal-body">
+      <div class="detail-stats"><div class="detail-stat"><span>UID</span><b id="detailUid">-</b></div><div class="detail-stat"><span>Conexión</span><b id="detailOnline">-</b></div><div class="detail-stat"><span>Progreso</span><b id="detailProgress">0%</b></div><div class="detail-stat"><span>Score</span><b id="detailScore">0</b></div><div class="detail-stat"><span>Casos</span><b id="detailCases">0</b></div><div class="detail-stat"><span>Visitas</span><b id="detailVisits">0</b></div></div>
+      <div id="profileMissing" class="profile-disabled" hidden>Este UID todavía no tiene un registro de perfil. Con el nuevo flujo, el registro se crea automáticamente cuando la persona inicia sesión con Google.</div>
+      <div class="modal-grid">
+        <div class="field"><label for="editName">Nombre completo</label><input id="editName" maxlength="80"></div>
+        <div class="field"><label for="editEmail">Correo</label><input id="editEmail" type="email" maxlength="160"></div>
+        <div class="field"><label for="editRole">Rol</label><input id="editRole" maxlength="80"></div>
+        <div class="field"><label for="editEmployee">Employee ID</label><input id="editEmployee" maxlength="60"></div>
+        <div class="field"><label for="editTeam">Equipo</label><input id="editTeam" maxlength="100"></div>
+        <div class="field"><label for="editCountry">País, sitio o ubicación</label><input id="editCountry" maxlength="100"></div>
+        <div class="field"><label for="editLanguage">Idioma</label><select id="editLanguage"><option value="Spanish">Español</option><option value="English">English</option><option value="French">Français</option></select></div>
+        <div class="field"><label for="editStatus">Estado de acceso</label><select id="editStatus"><option value="active">Activo</option><option value="blocked">Bloqueado</option><option value="archived">Archivado</option></select></div>
+        <div class="field wide"><label class="switch-row"><input id="editForce" type="checkbox"><span><b>Resincronizar identidad desde Google</b><span class="tiny muted">En el próximo ingreso se priorizarán nombre, correo y foto del proveedor de Google. No se mostrará un formulario de registro.</span></span></label></div>
+        <div class="field wide"><label for="editMessage">Mensaje de acceso para la persona</label><textarea id="editMessage" maxlength="500" placeholder="Ejemplo: Contacta a tu supervisor para reactivar el acceso."></textarea></div>
+        <div class="field wide"><label for="editNotes">Notas privadas del administrador</label><textarea id="editNotes" maxlength="2000" placeholder="Estas notas no son visibles para el participante."></textarea></div>
+      </div>
+      <div id="modalMessage" class="message"></div>
+    </div>
+    <footer class="modal-foot"><button id="deleteDataButton" class="btn danger">Eliminar datos y archivar</button><div class="spacer"></div><button id="modalCancel" class="btn">Cancelar</button><button id="saveUserButton" class="btn red">Guardar cambios</button></footer>
+  </section>
+</div>
+<div id="toast" class="toast"></div>
+<script src="./firebase-config.js"></script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js';
+import { getAuth, setPersistence, browserSessionPersistence, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js';
+import { getFirestore, collection, doc, getDoc, onSnapshot, setDoc, deleteDoc, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js';
+
+const config=window.TRAINING_FIREBASE_CONFIG||{};
+const settings=window.TRAINING_APP_SETTINGS||{};
+const names={
+  registrations:settings.registrationsCollection||'trainingRegistrations',
+  access:settings.accessCollection||'trainingAccess',
+  notes:settings.adminNotesCollection||'trainingAdminNotes',
+  admins:settings.adminsCollection||'trainingAdmins',
+  presence:settings.presenceCollection||'trainingPresence'
+};
+const ONLINE_WINDOW=Math.max(30000,Number(settings.presenceOnlineWindowMs||70000));
+const $=id=>document.getElementById(id);
+const state={app:null,auth:null,db:null,admin:null,adminRecord:null,regs:new Map(),access:new Map(),notes:new Map(),presence:new Map(),unsubs:[],selected:null};
+
+function configured(){return ['apiKey','authDomain','projectId','appId'].every(k=>String(config[k]||'')&&!String(config[k]).includes('REPLACE_ME'))}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function clamp(v){v=Number(v)||0;return Math.max(0,Math.min(100,Math.round(v)))}
+function dateOf(v){if(!v)return null;if(typeof v.toDate==='function')return v.toDate();const d=new Date(v);return Number.isNaN(d.getTime())?null:d}
+function fmt(v){const d=dateOf(v);return d?new Intl.DateTimeFormat('es',{dateStyle:'medium',timeStyle:'short'}).format(d):'-'}
+function isRecent(v){const d=dateOf(v);return d&&Date.now()-d.getTime()<=86400000}
+function initials(name,email){const s=String(name||email||'?').trim();const p=s.split(/\s+/).filter(Boolean);return (p[0]?.[0]||'?')+(p[1]?.[0]||'')}
+function show(el,yes=true){el.hidden=!yes}
+function message(el,text='',type='error'){el.textContent=text;el.className=`message${text?` show ${type}`:''}`}
+function toast(text){const el=$('toast');el.textContent=text;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),2600)}
+function busy(button,on,label){if(on){button.dataset.old=button.textContent;button.textContent=label||'Procesando...'}else button.textContent=button.dataset.old||button.textContent;button.disabled=on}
+function errorText(e){const code=String(e?.code||'');if(code.includes('invalid-credential')||code.includes('wrong-password')||code.includes('user-not-found'))return 'Correo o contraseña incorrectos.';if(code.includes('popup-closed-by-user'))return 'Se cerró la ventana de Google antes de completar el acceso.';if(code.includes('unauthorized-domain'))return 'Este dominio no está autorizado en Firebase Authentication.';if(code.includes('permission-denied'))return 'Firebase rechazó esta operación. Revisa el documento de administrador y las reglas de Firestore.';return e?.message||'Ocurrió un error inesperado.'}
+function onlineFromPresence(p){const d=dateOf(p?.heartbeatAt||p?.lastSeenAt);return !!(p&&p.online!==false&&d&&Date.now()-d.getTime()<=ONLINE_WINDOW)}
+
+function mergedUsers(){
+  const ids=new Set([...state.regs.keys(),...state.access.keys(),...state.notes.keys(),...state.presence.keys()]);
+  return [...ids].map(uid=>{
+    const r=state.regs.get(uid)||{},a=state.access.get(uid)||{},n=state.notes.get(uid)||{},presence=state.presence.get(uid)||{},p=r.progress||{};
+    return {uid,hasRegistration:state.regs.has(uid),...r,access:a,presence,adminNotes:n.notes||'',status:a.status||'active',forceReRegister:a.forceReRegister===true,accessMessage:a.message||'',score:Number(p.score||0),progress:clamp(p.progress),casesCompleted:Number(p.casesCompleted||0),quizAttempts:Number(p.quizAttempts||0),online:onlineFromPresence(presence)};
+  }).sort((a,b)=>(b.online-a.online)||((dateOf(b.presence?.heartbeatAt||b.lastSeenAt)?.getTime()||0)-(dateOf(a.presence?.heartbeatAt||a.lastSeenAt)?.getTime()||0)));
+}
+function filteredUsers(){const q=$('searchInput').value.trim().toLowerCase(),status=$('statusFilter').value,presence=$('presenceFilter').value,team=$('teamFilter').value;return mergedUsers().filter(u=>{const hay=`${u.uid} ${u.fullName||''} ${u.email||''} ${u.employeeId||''} ${u.team||''} ${u.country||''}`.toLowerCase();return(!q||hay.includes(q))&&(status==='all'||u.status===status)&&(presence==='all'||(presence==='online'&&u.online)||(presence==='offline'&&!u.online))&&(team==='all'||(u.team||'')===team)})}
+function fillTeamFilter(){const select=$('teamFilter'),current=select.value;const teams=[...new Set(mergedUsers().map(u=>u.team).filter(Boolean))].sort((a,b)=>a.localeCompare(b));select.innerHTML='<option value="all">Todos los equipos</option>'+teams.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');select.value=teams.includes(current)?current:'all'}
+function renderStats(){const all=mergedUsers(),registered=all.filter(u=>u.hasRegistration),online=all.filter(u=>u.online),active=all.filter(u=>u.status==='active'),blocked=all.filter(u=>u.status==='blocked'),recent=all.filter(u=>isRecent(u.presence?.heartbeatAt||u.lastSeenAt));const avg=registered.length?Math.round(registered.reduce((s,u)=>s+u.progress,0)/registered.length):0;$('statRegistered').textContent=registered.length;$('statOnline').textContent=online.length;$('statActive').textContent=active.length;$('statBlocked').textContent=blocked.length;$('statRecent').textContent=recent.length;$('statProgress').textContent=`${avg}%`}
+function statusLabel(u){const extra=u.forceReRegister?' · sync Google':'';return `<span class="status ${esc(u.status)}">${u.status==='active'?'Activo':u.status==='blocked'?'Bloqueado':'Archivado'}${extra}</span>`}
+function presenceLabel(u){return `<span class="presence ${u.online?'online':''}"><i></i>${u.online?'En línea':'Desconectado'}</span>`}
+function renderTable(){const list=filteredUsers(),body=$('userRows');$('rowCount').textContent=`${list.length} usuario${list.length===1?'':'s'}`;show($('emptyState'),!list.length);body.innerHTML=list.map(u=>`<tr><td><div class="person"><div class="avatar">${esc(initials(u.fullName,u.email))}</div><div><b>${esc(u.fullName||'(sin registro)')}</b><span>${esc(u.email||u.uid)}</span></div></div></td><td><b>${esc(u.team||'-')}</b><br><span class="muted">${esc(u.country||u.employeeId||'-')}</span></td><td>${statusLabel(u)}</td><td>${presenceLabel(u)}</td><td><div class="bar"><i style="width:${u.progress}%"></i></div><span class="tiny">${u.progress}%</span></td><td>${u.score}</td><td>${u.casesCompleted}</td><td>${Number(u.visitCount||0)}</td><td>${esc(fmt(u.presence?.heartbeatAt||u.lastSeenAt||u.lastLoginAt||u.createdAt))}</td><td><button class="btn" data-edit="${esc(u.uid)}">Administrar</button></td></tr>`).join('')}
+function render(){fillTeamFilter();renderStats();renderTable()}
+function stopListeners(){state.unsubs.forEach(fn=>{try{fn()}catch(e){}});state.unsubs=[]}
+function listenCollection(name,target){const unsub=onSnapshot(collection(state.db,name),snap=>{target.clear();snap.forEach(d=>target.set(d.id,{uid:d.id,...d.data()}));render()},e=>toast(errorText(e)));state.unsubs.push(unsub)}
+function startListeners(){stopListeners();listenCollection(names.registrations,state.regs);listenCollection(names.access,state.access);listenCollection(names.notes,state.notes);listenCollection(names.presence,state.presence)}
+
+function showLogin(text='',type='error'){show($('loginScreen'),true);show($('appScreen'),false);show($('deniedScreen'),false);message($('loginMessage'),text,type)}
+function showDenied(text){show($('loginScreen'),false);show($('appScreen'),false);show($('deniedScreen'),true);$('deniedText').textContent=text||'Esta cuenta no está autorizada.'}
+function showApp(){show($('loginScreen'),false);show($('deniedScreen'),false);show($('appScreen'),true);$('adminEmail').textContent=state.admin.email||state.admin.uid;$('adminName').textContent=state.adminRecord?.name||state.admin.displayName||'Administrador';startListeners()}
+async function verifyAdmin(user){state.admin=user;try{const snap=await getDoc(doc(state.db,names.admins,user.uid));if(!snap.exists()||snap.data().active!==true){showDenied(`La cuenta ${user.email||user.uid} no tiene un registro activo en ${names.admins}/${user.uid}. UID: ${user.uid}`);return}state.adminRecord=snap.data();showApp()}catch(e){showDenied(errorText(e))}}
+
+function openUser(uid){const u=mergedUsers().find(x=>x.uid===uid);if(!u)return;state.selected=u;$('modalTitle').textContent=u.fullName||'Administrar UID';$('modalSubtitle').textContent=u.email||uid;$('detailUid').textContent=uid;$('detailOnline').textContent=u.online?'En línea':'Offline';$('detailProgress').textContent=`${u.progress}%`;$('detailScore').textContent=u.score;$('detailCases').textContent=u.casesCompleted;$('detailVisits').textContent=Number(u.visitCount||0);$('editName').value=u.fullName||'';$('editEmail').value=u.email||'';$('editRole').value=u.role||settings.defaultRole||'Account Manager';$('editEmployee').value=u.employeeId||'';$('editTeam').value=u.team||'';$('editCountry').value=u.country||'';const lang=String(u.language||'English');$('editLanguage').value=lang.toLowerCase().startsWith('es')?'Spanish':lang.toLowerCase().startsWith('fr')?'French':'English';$('editStatus').value=['active','blocked','archived'].includes(u.status)?u.status:'active';$('editForce').checked=u.forceReRegister;$('editMessage').value=u.accessMessage||'';$('editNotes').value=u.adminNotes||'';['editName','editEmail','editRole','editEmployee','editTeam','editCountry','editLanguage'].forEach(id=>$(id).disabled=!u.hasRegistration);show($('profileMissing'),!u.hasRegistration);message($('modalMessage'));show($('userModal'),true);document.body.style.overflow='hidden'}
+function closeModal(){show($('userModal'),false);document.body.style.overflow='';state.selected=null}
+async function saveUser(){const u=state.selected;if(!u)return;const button=$('saveUserButton');busy(button,true,'Guardando...');message($('modalMessage'));try{const jobs=[];if(u.hasRegistration){const fullName=$('editName').value.trim(),email=$('editEmail').value.trim().toLowerCase(),team=$('editTeam').value.trim(),country=$('editCountry').value.trim();if(fullName.length<2||!email.includes('@'))throw new Error('Completa un nombre y correo válidos.');jobs.push(setDoc(doc(state.db,names.registrations,u.uid),{fullName,email,emailLower:email,role:$('editRole').value.trim()||settings.defaultRole||'Account Manager',employeeId:$('editEmployee').value.trim(),team,country,language:$('editLanguage').value,adminUpdatedAt:serverTimestamp(),adminUpdatedBy:state.admin.uid},{merge:true}))}jobs.push(setDoc(doc(state.db,names.access,u.uid),{status:$('editStatus').value,message:$('editMessage').value.trim(),forceReRegister:$('editForce').checked,updatedAt:serverTimestamp(),updatedBy:state.admin.uid},{merge:true}));const note=$('editNotes').value.trim();if(note)jobs.push(setDoc(doc(state.db,names.notes,u.uid),{notes:note,updatedAt:serverTimestamp(),updatedBy:state.admin.uid},{merge:true}));else jobs.push(deleteDoc(doc(state.db,names.notes,u.uid)));await Promise.all(jobs);toast('Usuario actualizado en tiempo real');closeModal()}catch(e){message($('modalMessage'),errorText(e))}finally{busy(button,false)}}
+async function deleteData(){const u=state.selected;if(!u)return;const answer=prompt(`Escribe ELIMINAR para borrar los datos de ${u.fullName||u.email||u.uid} y archivar su acceso.`);if(answer!=='ELIMINAR')return;const button=$('deleteDataButton');busy(button,true,'Eliminando...');try{const batch=writeBatch(state.db);batch.delete(doc(state.db,names.registrations,u.uid));batch.delete(doc(state.db,names.notes,u.uid));batch.delete(doc(state.db,names.presence,u.uid));batch.set(doc(state.db,names.access,u.uid),{status:'archived',message:'Los datos de este perfil fueron eliminados por un administrador.',forceReRegister:false,updatedAt:serverTimestamp(),updatedBy:state.admin.uid},{merge:true});await batch.commit();toast('Datos eliminados y acceso archivado');closeModal()}catch(e){message($('modalMessage'),errorText(e))}finally{busy(button,false)}}
+function exportCsv(){const headers=['UID','Nombre','Correo','Employee ID','Rol','Equipo','Ubicación','Idioma','Estado','En línea','Progreso','Score','Casos','Intentos quiz','Visitas','Creado','Último acceso','Último heartbeat','Notas privadas'];const rows=filteredUsers().map(u=>[u.uid,u.fullName,u.email,u.employeeId,u.role,u.team,u.country,u.language,u.status,u.online?'Sí':'No',u.progress,u.score,u.casesCompleted,u.quizAttempts,u.visitCount,fmt(u.createdAt),fmt(u.lastSeenAt||u.lastLoginAt),fmt(u.presence?.heartbeatAt),u.adminNotes]);const csv=[headers,...rows].map(r=>r.map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(',')).join('\r\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`training-users-${new Date().toISOString().slice(0,10)}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('CSV exportado')}
+
+$('loginForm').addEventListener('submit',async e=>{e.preventDefault();const b=$('loginButton');busy(b,true,'Ingresando...');message($('loginMessage'));try{await signInWithEmailAndPassword(state.auth,$('loginEmail').value.trim(),$('loginPassword').value)}catch(err){message($('loginMessage'),errorText(err))}finally{busy(b,false)}});
+$('googleAdminButton').onclick=async()=>{const b=$('googleAdminButton');busy(b,true,'Conectando...');message($('loginMessage'));try{const provider=new GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});await signInWithPopup(state.auth,provider)}catch(e){message($('loginMessage'),errorText(e))}finally{busy(b,false)}};
+$('logoutButton').onclick=()=>signOut(state.auth);$('deniedLogout').onclick=()=>signOut(state.auth);$('searchInput').oninput=renderTable;$('statusFilter').onchange=renderTable;$('presenceFilter').onchange=renderTable;$('teamFilter').onchange=renderTable;$('refreshButton').onclick=()=>{startListeners();toast('Listeners en tiempo real reconectados')};$('exportButton').onclick=exportCsv;$('userRows').addEventListener('click',e=>{const b=e.target.closest('[data-edit]');if(b)openUser(b.dataset.edit)});$('modalClose').onclick=closeModal;$('modalCancel').onclick=closeModal;$('saveUserButton').onclick=saveUser;$('deleteDataButton').onclick=deleteData;$('userModal').addEventListener('click',e=>{if(e.target===$('userModal'))closeModal()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('userModal').hidden)closeModal()});
+setInterval(()=>{if(!$('appScreen').hidden)render()},10000);
+
+async function boot(){if(!configured()){showLogin('Falta configurar firebase-config.js.','info');$('loginButton').disabled=true;$('googleAdminButton').disabled=true;return}try{state.app=initializeApp(config,'training-admin-console-v14');state.auth=getAuth(state.app);state.db=getFirestore(state.app);await setPersistence(state.auth,browserSessionPersistence);onAuthStateChanged(state.auth,user=>{stopListeners();state.regs.clear();state.access.clear();state.notes.clear();state.presence.clear();if(!user)showLogin();else verifyAdmin(user)})}catch(e){showLogin(errorText(e))}}
+boot();
+</script>
+</body>
+</html>
