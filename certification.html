@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>DoorDash Training Certification</title>
+  <link rel="stylesheet" href="./academy.css">
+</head>
+<body data-page="certification">
+  <header class="topbar"><div><div class="brand">DOORDASH</div><div class="brand-sub">Final Certification</div></div><div class="spacer"></div><span id="certUser" class="muted"></span><a id="certBack" class="btn small" href="./academy.html">Volver a Academia</a></header>
+  <main class="exam-page">
+    <div id="certMessage" class="message"></div>
+    <section id="certIntro" class="exam-shell">
+      <div class="exam-head"><div style="font-size:10px;font-weight:900;letter-spacing:.1em">FINAL CERTIFICATION</div><h1>Certificación de Account Manager</h1><p>Evaluación sin pistas ni retroalimentación inmediata. Las preguntas se generan desde los 20 casos existentes.</p></div>
+      <div class="exam-body">
+        <div class="analytics-grid">
+          <div class="analytics-box"><span>Preguntas</span><b id="certCount">40</b></div>
+          <div class="analytics-box"><span>Aprobación</span><b id="certPass">85%</b></div>
+          <div class="analytics-box"><span>Tiempo</span><b id="certMinutes">60 min</b></div>
+        </div>
+        <p class="muted" style="line-height:1.6">La evaluación mide discovery, diagnóstico de causa raíz, navegación del Portal, diseño de solución y cierre verificable.</p>
+        <button id="startCertification" class="btn red full">Comenzar certificación</button>
+      </div>
+    </section>
+    <section id="certExam" hidden>
+      <div class="exam-head"><div style="display:flex;justify-content:space-between;gap:12px"><div><div id="questionCount" style="font-weight:900">Pregunta</div><div id="questionSkill" class="tiny" style="opacity:.9"></div></div><b id="certTimer" style="font-size:24px">60:00</b></div><div class="progress" style="margin-top:14px;background:rgba(255,255,255,.25)"><i id="certProgress" style="background:#fff;width:0"></i></div></div>
+      <div class="exam-shell" style="margin-top:12px"><div class="exam-body"><div id="questionContext" class="muted" style="line-height:1.5"></div><h2 id="questionText" class="question"></h2><div id="questionOptions" class="options"></div></div><footer class="exam-foot"><button id="prevQuestion" class="btn">Anterior</button><button id="nextQuestion" class="btn red">Siguiente</button></footer></div>
+    </section>
+    <section id="certResult" class="exam-shell" hidden><div class="score-burst"><span id="resultBadge" class="badge"></span><b id="resultScore">0%</b><h2 id="resultTitle">Resultado</h2><p id="resultText" class="muted"></p><div class="actions" style="justify-content:center;margin-top:18px"><a class="btn" href="./academy.html">Volver a Academia</a><button id="retryCertification" class="btn red">Intentar nuevamente</button></div></div></section>
+  </main>
+  <div id="fatalMessage" class="message"></div><div id="toast" class="toast"></div>
+  <script src="./firebase-config.js"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
