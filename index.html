@@ -2,223 +2,35 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <title>DoorDash Training - Sign in</title>
-  <style>
-    :root{--red:#eb1700;--ink:#171717;--muted:#68707a;--line:#e5e7eb;--panel:#fff;--green:#16833b;--danger:#b42318;--purple:#7047eb}
-    *{box-sizing:border-box}
-    html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;color:var(--ink)}
-    body{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 88% 12%,rgba(112,71,235,.24),transparent 34%),radial-gradient(circle at 8% 88%,rgba(235,23,0,.20),transparent 34%),#101114}
-    .card{width:min(650px,100%);background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 30px 90px rgba(0,0,0,.38)}
-    .hero{padding:34px 38px 30px;color:#fff;background:linear-gradient(135deg,#eb1700 0%,#ff573f 46%,#7047eb 100%)}
-    .eyebrow{font-size:12px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;opacity:.95;margin-bottom:14px}
-    h1{margin:0;font-size:34px;line-height:1.08}
-    .hero p{margin:12px 0 0;font-size:15px;line-height:1.55;max-width:560px;opacity:.96}
-    .body{padding:30px 38px 34px}
-    .status{display:none;padding:12px 14px;border-radius:11px;margin-bottom:18px;font-size:13px;line-height:1.5}
-    .status.show{display:block}.status.error{background:#fff1f0;border:1px solid #f3b6b0;color:var(--danger)}.status.info{background:#eef5ff;border:1px solid #cadcf8;color:#194f8a}.status.success{background:#edf9f1;border:1px solid #b7e4c6;color:#126b30}
-    .signin-panel{border:1px solid var(--line);border-radius:16px;padding:20px;background:#fff}
-    .signin-panel h2{font-size:19px;margin:0 0 7px}.signin-panel p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
-    .google{width:100%;margin-top:18px;border:1px solid #cfd3d7;background:#fff;color:#171717;border-radius:999px;padding:13px 18px;font-weight:850;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;min-height:48px}
-    .google:hover{background:#f8f8f8}.google:disabled{opacity:.55;cursor:not-allowed}
-    .gmark{width:24px;height:24px;border:1px solid #ddd;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#4285f4;background:#fff}
-    .benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
-    .benefit{border:1px solid var(--line);border-radius:12px;padding:12px}.benefit b{display:block;font-size:12px;margin-bottom:4px}.benefit span{font-size:11px;line-height:1.4;color:var(--muted)}
-    .note{margin-top:17px;font-size:11px;line-height:1.55;color:var(--muted)}
-    .loading{display:flex;gap:10px;align-items:center;justify-content:center;color:var(--muted);padding:6px 0 2px;font-size:12px}
-    .spinner{width:18px;height:18px;border:3px solid #ececec;border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
-    [hidden]{display:none!important}
-    @media(max-width:650px){.hero,.body{padding-left:22px;padding-right:22px}.benefits{grid-template-columns:1fr}h1{font-size:29px}}
-  </style>
+  <title>DoorDash Training Academy — Sign in</title>
+  <link rel="stylesheet" href="./academy.css">
 </head>
-<body>
-  <main class="card">
-    <section class="hero">
-      <div class="eyebrow">DOORDASH · TRAINING</div>
+<body data-page="login" class="login-page">
+  <main class="login-card">
+    <section class="login-hero">
+      <div style="font-size:11px;font-weight:900;letter-spacing:.1em">DOORDASH · TRAINING ACADEMY</div>
       <h1>Welcome to Training</h1>
-      <p>Inicia sesión una sola vez. Tu perfil se crea automáticamente con tu cuenta y tu progreso se sincroniza con la consola administrativa.</p>
+      <p>Inicia sesión una sola vez. Tu perfil se crea automáticamente y tu progreso se sincroniza con la Academia y la consola administrativa.</p>
     </section>
-    <section class="body">
-      <div id="status" class="status"></div>
-      <div id="checking" class="loading"><span class="spinner"></span><span>Comprobando tu sesión...</span></div>
-      <div id="signInPanel" class="signin-panel" hidden>
-        <h2>Acceso al entrenamiento</h2>
-        <p>No necesitas crear un perfil manual ni una contraseña dentro del simulador.</p>
+    <section class="login-body">
+      <div id="status" class="message"></div>
+      <div id="checking" style="padding:14px 0;text-align:center;color:#66707a">Comprobando tu sesión...</div>
+      <div id="signInPanel" hidden>
+        <h2 style="margin:0">Acceso al entrenamiento</h2>
+        <p class="muted" style="line-height:1.5">No necesitas crear un perfil manual ni guardar una contraseña dentro de la plataforma.</p>
         <button id="googleButton" class="google" type="button"><span class="gmark">G</span><span>Continuar con Google</span></button>
         <div class="benefits">
-          <div class="benefit"><b>Perfil automático</b><span>Nombre y correo vienen de tu sesión autenticada.</span></div>
-          <div class="benefit"><b>Progreso sincronizado</b><span>Quizzes, casos y actividad se envían a Firestore.</span></div>
-          <div class="benefit"><b>Presencia en tiempo real</b><span>La consola puede ver quién está conectado.</span></div>
+          <div class="benefit"><b>Perfil automático</b><span>Nombre y correo vienen de tu cuenta autenticada.</span></div>
+          <div class="benefit"><b>Progreso cloud</b><span>Casos, módulos, tiempo y certificaciones se guardan en Firestore.</span></div>
+          <div class="benefit"><b>Academia completa</b><span>Rutas, asignaciones, simulador y certificación en un solo lugar.</span></div>
         </div>
       </div>
-      <div class="note">Tu contraseña de Google nunca se guarda en este sitio. La autenticación la gestiona Firebase Authentication. Los campos opcionales como equipo, mercado o preferencias pueden editarse después, pero no bloquean el acceso.</div>
+      <p class="tiny muted" style="line-height:1.5;margin-top:18px">Tu contraseña de Google nunca se guarda en este sitio. La autenticación es administrada por Firebase Authentication.</p>
     </section>
   </main>
-
   <script src="./firebase-config.js"></script>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-    import {
-      getAuth,
-      GoogleAuthProvider,
-      signInWithPopup,
-      signOut,
-      onAuthStateChanged,
-      setPersistence,
-      browserLocalPersistence
-    } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-    import {
-      getFirestore,
-      doc,
-      getDoc,
-      setDoc,
-      serverTimestamp,
-      increment
-    } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-
-    const config = window.TRAINING_FIREBASE_CONFIG || {};
-    const settings = window.TRAINING_APP_SETTINGS || {};
-    const statusEl = document.getElementById('status');
-    const checkingEl = document.getElementById('checking');
-    const panelEl = document.getElementById('signInPanel');
-    const googleButton = document.getElementById('googleButton');
-
-    function showStatus(text='', type='info'){
-      statusEl.textContent = text;
-      statusEl.className = `status${text ? ` show ${type}` : ''}`;
-    }
-    function setBusy(on, label='Continuar con Google'){
-      googleButton.disabled = on;
-      googleButton.querySelector('span:last-child').textContent = on ? 'Conectando...' : label;
-    }
-    function languageFromBrowser(){
-      const code = String(navigator.language || 'en').toLowerCase();
-      if(code.startsWith('es')) return 'Spanish';
-      if(code.startsWith('fr')) return 'French';
-      return 'English';
-    }
-    function allowedEmail(email){
-      const domain = String(settings.allowedEmailDomain || '').trim().toLowerCase().replace(/^@/, '');
-      if(!domain) return true;
-      return String(email || '').toLowerCase().endsWith(`@${domain}`);
-    }
-    function redirectToTraining(){
-      window.location.replace(settings.simulatorUrl || './training-simulator-v14%20(1).html');
-    }
-    function errorText(error){
-      const code = String(error?.code || '');
-      if(code.includes('popup-closed-by-user')) return 'Se cerró la ventana de Google antes de completar el acceso.';
-      if(code.includes('popup-blocked')) return 'El navegador bloqueó la ventana de Google. Permite ventanas emergentes para este sitio e inténtalo de nuevo.';
-      if(code.includes('unauthorized-domain')) return 'Este dominio no está autorizado en Firebase Authentication. Agrégalo en Authentication > Settings > Authorized domains.';
-      if(code.includes('permission-denied')) return 'Firestore rechazó el acceso. Revisa las reglas de seguridad incluidas en el paquete.';
-      return error?.message || 'No se pudo iniciar sesión.';
-    }
-
-    let app, auth, db, handlingUid = null;
-    try{
-      if(!config.apiKey || !config.projectId || !config.appId) throw new Error('Falta la configuración de Firebase.');
-      app = initializeApp(config, 'training-simulator-v14-cloud');
-      auth = getAuth(app);
-      db = getFirestore(app);
-      await setPersistence(auth, browserLocalPersistence);
-    }catch(error){
-      checkingEl.hidden = true;
-      panelEl.hidden = false;
-      googleButton.disabled = true;
-      showStatus(errorText(error), 'error');
-      throw error;
-    }
-
-    async function ensureRegistration(user){
-      if(handlingUid === user.uid) return;
-      handlingUid = user.uid;
-      try{
-        if(!allowedEmail(user.email)){
-          await signOut(auth);
-          throw new Error(`Tu cuenta no pertenece al dominio autorizado (${settings.allowedEmailDomain}).`);
-        }
-
-        const accessRef = doc(db, settings.accessCollection || 'trainingAccess', user.uid);
-        const accessSnap = await getDoc(accessRef);
-        if(accessSnap.exists() && String(accessSnap.data().status || '') === 'blocked'){
-          const message = accessSnap.data().message || 'Tu acceso al entrenamiento está bloqueado. Contacta al administrador.';
-          await signOut(auth);
-          throw new Error(message);
-        }
-
-        const regRef = doc(db, settings.registrationsCollection || 'trainingRegistrations', user.uid);
-        const existing = await getDoc(regRef);
-        const existingData = existing.exists() ? existing.data() : {};
-        const syncGoogleIdentity = accessSnap.exists() && accessSnap.data().forceReRegister === true;
-        const fullName = syncGoogleIdentity ? (user.displayName || existingData.fullName || String(user.email || '').split('@')[0] || 'Trainee') : (existingData.fullName || user.displayName || String(user.email || '').split('@')[0] || 'Trainee');
-        const email = String(user.email || existingData.email || '').toLowerCase();
-        const firstSessionVisitKey = `dd_training_visit_${user.uid}`;
-        const countVisit = !sessionStorage.getItem(firstSessionVisitKey);
-        if(countVisit) sessionStorage.setItem(firstSessionVisitKey, '1');
-
-        const payload = {
-          uid: user.uid,
-          fullName,
-          email,
-          emailLower: email,
-          photoURL: user.photoURL || existingData.photoURL || '',
-          role: existingData.role || settings.defaultRole || 'Account Manager',
-          employeeId: existingData.employeeId || '',
-          team: existingData.team || '',
-          country: existingData.country || '',
-          language: existingData.language || languageFromBrowser(),
-          status: existingData.status || 'active',
-          authProvider: 'google.com',
-          source: 'training-simulator-google-login',
-          registrationVersion: settings.registrationVersion || 3,
-          lastLoginAt: serverTimestamp(),
-          lastSeenAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        };
-        if(!existing.exists()){
-          payload.createdAt = serverTimestamp();
-          payload.registeredAt = serverTimestamp();
-          payload.progress = {progress:0, score:0, casesCompleted:0, quizAttempts:0, quizPassed:0};
-        }
-        if(countVisit) payload.visitCount = increment(1);
-
-        await setDoc(regRef, payload, {merge:true});
-        showStatus('Sesión lista. Abriendo el entrenamiento...', 'success');
-        setTimeout(redirectToTraining, 250);
-      }catch(error){
-        handlingUid = null;
-        checkingEl.hidden = true;
-        panelEl.hidden = false;
-        setBusy(false);
-        showStatus(errorText(error), 'error');
-      }
-    }
-
-    onAuthStateChanged(auth, user => {
-      if(user){
-        checkingEl.hidden = false;
-        panelEl.hidden = true;
-        showStatus('');
-        ensureRegistration(user);
-      }else{
-        checkingEl.hidden = true;
-        panelEl.hidden = false;
-      }
-    });
-
-    googleButton.addEventListener('click', async () => {
-      setBusy(true);
-      showStatus('Abriendo Google...', 'info');
-      try{
-        const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({prompt:'select_account'});
-        await signInWithPopup(auth, provider);
-      }catch(error){
-        setBusy(false);
-        showStatus(errorText(error), 'error');
-      }
-    });
-  </script>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
