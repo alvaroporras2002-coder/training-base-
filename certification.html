@@ -1,103 +1,240 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DoorDash Training Certification</title>
-  <link rel="stylesheet" href="./academy.css">
+  <style>
+    :root{--red:#f32912;--purple:#7b35d9;--ink:#11131a;--muted:#667085;--bg:#f4f5f8;--card:#fff;--line:#e5e7eb;--green:#18864b;--danger:#b42318}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:radial-gradient(circle at 15% 5%,rgba(243,41,18,.09),transparent 25%),radial-gradient(circle at 90% 0%,rgba(123,53,217,.12),transparent 30%),var(--bg);color:var(--ink);min-height:100vh}
+    a{text-decoration:none;color:inherit}
+    button{font:inherit}
+    .topbar{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:5}
+    .brand{font-weight:900;letter-spacing:.04em;color:var(--red);font-size:20px}
+    .subbrand{font-size:12px;color:var(--muted);margin-top:2px}
+    .top-right{display:flex;align-items:center;gap:16px;font-size:13px}
+    .user-name{font-weight:700}
+    .ghost{border:1px solid var(--line);background:#fff;border-radius:999px;padding:11px 16px;font-weight:800;cursor:pointer}
+    .shell{width:min(920px,calc(100% - 32px));margin:34px auto 60px}
+    .hero{background:linear-gradient(115deg,var(--red),#f05243 46%,var(--purple));border-radius:28px 28px 0 0;color:#fff;padding:36px 38px 34px;box-shadow:0 20px 50px rgba(20,20,40,.12)}
+    .eyebrow{font-size:12px;font-weight:900;letter-spacing:.14em;opacity:.9}
+    h1{margin:8px 0 8px;font-size:36px;line-height:1.08}
+    .hero p{margin:0;max-width:720px;font-size:15px;line-height:1.6;color:rgba(255,255,255,.94)}
+    .main-card{background:#fff;border-radius:0 0 28px 28px;box-shadow:0 20px 50px rgba(20,20,40,.12);padding:28px}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+    .stat{border:1px solid var(--line);border-radius:18px;padding:18px;background:linear-gradient(180deg,#fff,#fafbfc)}
+    .stat .label{font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#7b8494}
+    .stat .value{font-size:24px;font-weight:900;margin-top:6px}
+    .notice{border:1px solid #d9d2ff;background:#f7f4ff;border-radius:16px;padding:16px 18px;margin:18px 0;color:#4d3a83}
+    .notice b{display:block;color:#31215c;margin-bottom:4px}
+    .section{display:none}
+    .section.active{display:block}
+    .start-card{padding:18px 0 6px}
+    .primary{width:100%;border:none;border-radius:16px;background:linear-gradient(90deg,var(--red),#ff361c);color:#fff;padding:16px 20px;font-weight:900;cursor:pointer;box-shadow:0 10px 24px rgba(243,41,18,.23)}
+    .exam-head{border-radius:22px;background:linear-gradient(105deg,#141414,#34215f);color:#fff;padding:18px 20px;margin-bottom:16px}
+    .exam-line{display:flex;justify-content:space-between;align-items:center;gap:16px}
+    .question-progress{height:6px;border-radius:999px;background:rgba(255,255,255,.22);overflow:hidden;margin-top:14px}
+    #certProgress{height:100%;background:linear-gradient(90deg,#ff4b35,#b16bff);width:0%;transition:width .2s ease}
+    .timer-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.8}
+    #certTimer{font-size:24px;font-weight:900}
+    .question-card{border:1px solid var(--line);background:#fff;border-radius:22px;padding:22px}
+    #questionCount{font-weight:900;color:#40345a;font-size:13px}
+    #questionSkill{font-size:12px;color:#7c8493;margin-top:5px}
+    #questionContext{margin-top:16px;padding:14px 16px;border-radius:14px;background:#faf7f4;color:#4b5563;line-height:1.55}
+    #questionText{font-size:22px;line-height:1.3;margin:18px 0 18px;font-weight:900}
+    .options{display:grid;gap:12px}
+    .cert-option{width:100%;display:grid;grid-template-columns:42px 1fr 28px;align-items:center;gap:14px;text-align:left;border:2px solid #e7e9ee;background:#fff;border-radius:16px;padding:15px 16px;cursor:pointer;transition:.15s ease}
+    .cert-option:hover{border-color:#c8b8e9;transform:translateY(-1px)}
+    .cert-option.selected{border-color:var(--red);background:#fff7f5;box-shadow:0 8px 20px rgba(243,41,18,.08)}
+    .cert-option-letter{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#f1f2f5;font-weight:900}
+    .cert-option.selected .cert-option-letter{background:var(--red);color:#fff}
+    .cert-option-copy{font-size:15px;line-height:1.45;font-weight:700}
+    .cert-option-check{opacity:0;font-weight:900;color:var(--red);font-size:20px}
+    .cert-option.selected .cert-option-check{opacity:1}
+    .exam-actions{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:18px}
+    .secondary{border:1px solid var(--line);background:#fff;border-radius:14px;padding:13px 18px;font-weight:800;cursor:pointer}
+    .secondary:disabled,.primary:disabled{opacity:.55;cursor:not-allowed}
+    .hint{font-size:12px;color:#7c8493;text-align:center;flex:1}
+    .message{display:none;padding:12px 14px;border-radius:12px;margin-top:16px;font-size:13px;font-weight:700}
+    .message.show{display:block}
+    .message.info{background:#eef4ff;color:#224a9b;border:1px solid #c8d8ff}
+    .message.success{background:#edf9f1;color:#136b3b;border:1px solid #bde7ca}
+    .message.error{background:#fff1f0;color:#a22b20;border:1px solid #f4c4be}
+    .submitting-card,.result-card{border:1px solid var(--line);background:#fff;border-radius:22px;padding:28px;text-align:center}
+    .spinner{width:54px;height:54px;border:5px solid #ece8f5;border-top-color:var(--purple);border-radius:50%;margin:0 auto 18px;animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .result-status{display:inline-flex;padding:8px 14px;border-radius:999px;font-size:12px;font-weight:900;letter-spacing:.08em;margin-bottom:12px}
+    .result-status.approved{background:#eaf8ef;color:var(--green)}
+    .result-status.not-approved{background:#fff0ee;color:var(--danger)}
+    #resultScore{font-size:58px;font-weight:900;line-height:1}
+    #resultTitle{margin:12px 0 8px;font-size:28px}
+    #resultText{color:#667085;line-height:1.6;max-width:660px;margin:0 auto 22px}
+    .result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0}
+    .result-item{border:1px solid var(--line);border-radius:14px;padding:13px}
+    .result-item span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#7b8494;font-weight:900}
+    .result-item b{display:block;margin-top:5px;font-size:15px;word-break:break-word}
+    .result-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+    .pdf-button{border:none;background:#11131a;color:#fff;border-radius:14px;padding:14px 20px;font-weight:900;cursor:pointer}
+    .back-button{border:1px solid var(--line);background:#fff;color:#11131a;border-radius:14px;padding:14px 20px;font-weight:900;cursor:pointer}
+    .footer-note{text-align:center;color:#8b93a1;font-size:11px;margin-top:20px}
+    #fatalMessage{margin-top:18px}
+    @media(max-width:720px){
+      .topbar{padding:0 16px}
+      .shell{width:min(100% - 18px,920px);margin:18px auto 35px}
+      .hero{padding:28px 22px}
+      h1{font-size:29px}
+      .main-card{padding:18px}
+      .stats{grid-template-columns:1fr}
+      .result-grid{grid-template-columns:1fr 1fr}
+      .exam-line{align-items:flex-start}
+      .question-card{padding:16px}
+      #questionText{font-size:19px}
+      .exam-actions{flex-wrap:wrap}
+      .hint{order:3;flex-basis:100%}
+    }
+  </style>
 </head>
-<body data-page="certification" class="cert-page">
-  <header class="topbar cert-topbar">
+<body data-page="certification">
+  <header class="topbar">
     <div>
       <div class="brand">DOORDASH</div>
-      <div class="brand-sub">AM Training Academy · Final Certification</div>
+      <div class="subbrand">AM Training Academy · Final Certification</div>
     </div>
-    <div class="spacer"></div>
-    <span id="certUser" class="muted cert-user"></span>
-    <a id="certBack" class="btn small" href="./academy.html">Volver a Academia</a>
+    <div class="top-right">
+      <span class="user-name" id="certUser">Trainee</span>
+      <a class="ghost" id="certBack" href="./academy.html">Volver a la Academia</a>
+    </div>
   </header>
 
-  <main class="exam-page cert-main">
-    <div id="certMessage" class="message"></div>
-
-    <section id="certIntro" class="cert-shell cert-intro-panel">
-      <div class="cert-hero">
-        <div class="cert-kicker">FINAL CERTIFICATION</div>
+  <main class="shell">
+    <section id="certIntro" class="section active">
+      <div class="hero">
+        <div class="eyebrow">FINAL CERTIFICATION</div>
         <h1>Certificación de Account Manager</h1>
         <p>Evaluación formal sin pistas ni retroalimentación inmediata. El resultado queda guardado en tu perfil y podrás descargar un PDF oficial del intento.</p>
       </div>
 
-      <div class="cert-intro-body">
-        <div class="cert-metrics">
-          <div class="cert-metric"><span>Preguntas</span><b id="certCount">40</b></div>
-          <div class="cert-metric"><span>Nota mínima</span><b id="certPass">80%</b></div>
-          <div class="cert-metric"><span>Tiempo</span><b id="certMinutes">60 min</b></div>
-        </div>
-
-        <div class="cert-info-callout">
-          <b>Qué se evalúa</b>
-          <span>Discovery, diagnóstico de causa raíz, navegación del Portal, diseño de solución y cierre verificable.</span>
-        </div>
-
-        <div id="previousResultCard" class="previous-result-card" hidden>
-          <div>
-            <span class="cert-kicker">ÚLTIMO RESULTADO GUARDADO</span>
-            <b id="previousResultText">Resultado disponible</b>
+      <div class="main-card">
+        <div class="stats">
+          <div class="stat">
+            <div class="label">Preguntas</div>
+            <div class="value" id="certCount">40</div>
           </div>
-          <button id="previousResultDownload" class="btn" type="button">Descargar último PDF</button>
+          <div class="stat">
+            <div class="label">Nota mínima</div>
+            <div class="value" id="certPass">80%</div>
+          </div>
+          <div class="stat">
+            <div class="label">Tiempo</div>
+            <div class="value" id="certMinutes">60 min</div>
+          </div>
         </div>
 
-        <button id="startCertification" class="btn red full cert-start" type="button">Comenzar certificación</button>
+        <div class="notice">
+          <b>Qué se evalúa</b>
+          Discovery, diagnóstico de causa raíz, navegación del Portal, diseño de solución y cierre verificable.
+        </div>
+
+        <div id="previousResultCard" class="notice" hidden>
+          <b>Último resultado guardado</b>
+          <span id="previousResultText"></span>
+          <div style="margin-top:12px">
+            <button class="secondary" id="previousResultDownload" type="button">Descargar último PDF</button>
+          </div>
+        </div>
+
+        <div class="start-card">
+          <button id="startCertification" class="primary" type="button">Comenzar certificación</button>
+        </div>
+
+        <div id="certMessage" class="message"></div>
       </div>
     </section>
 
-    <section id="certExam" class="cert-exam-layout" hidden>
-      <header class="cert-exam-head">
-        <div>
-          <div id="questionCount" class="cert-question-count">Pregunta</div>
-          <div id="questionSkill" class="cert-question-skill"></div>
+    <section id="certExam" class="section">
+      <div class="exam-head">
+        <div class="exam-line">
+          <div>
+            <div id="questionCount">Pregunta 1 de 40</div>
+            <div id="questionSkill"></div>
+          </div>
+          <div style="text-align:right">
+            <div class="timer-label">Tiempo restante</div>
+            <div id="certTimer">60:00</div>
+          </div>
         </div>
-        <div class="cert-timer-wrap">
-          <span>Tiempo restante</span>
-          <b id="certTimer">60:00</b>
+        <div class="question-progress">
+          <div id="certProgress"></div>
         </div>
-        <div class="cert-progress-track"><i id="certProgress"></i></div>
-      </header>
+      </div>
 
-      <article class="cert-question-card">
-        <div id="questionContext" class="cert-context"></div>
-        <h2 id="questionText" class="cert-question"></h2>
-        <div id="questionOptions" class="cert-options" role="group" aria-label="Opciones de respuesta"></div>
-      </article>
+      <div class="question-card">
+        <div id="questionContext"></div>
+        <div id="questionText"></div>
+        <div id="questionOptions" class="options"></div>
+      </div>
 
-      <footer class="cert-exam-foot">
-        <button id="prevQuestion" class="btn" type="button">Anterior</button>
-        <div id="certSubmitState" class="cert-submit-state">Tu progreso se guarda automáticamente.</div>
-        <button id="nextQuestion" class="btn red" type="button">Siguiente</button>
-      </footer>
+      <div class="exam-actions">
+        <button id="prevQuestion" class="secondary" type="button">Anterior</button>
+        <div id="certSubmitState" class="hint">Tu progreso se guarda automáticamente.</div>
+        <button id="nextQuestion" class="primary" style="width:auto;min-width:150px" type="button">Siguiente</button>
+      </div>
+
+      <div id="certExamMessage" class="message"></div>
     </section>
 
-    <section id="certResult" class="cert-shell cert-result-panel" hidden>
-      <div class="score-burst">
-        <span id="resultBadge" class="badge"></span>
-        <b id="resultScore">0%</b>
-        <h2 id="resultTitle">Resultado</h2>
-        <p id="resultText" class="muted"></p>
+    <section id="certSubmitting" class="section">
+      <div class="submitting-card">
+        <div class="spinner"></div>
+        <h2>Enviando certificación</h2>
+        <p>Guardando el resultado en tu perfil y preparando la constancia.</p>
+      </div>
+    </section>
 
-        <div id="resultDetails" class="cert-result-grid"></div>
+    <section id="certResult" class="section">
+      <div class="result-card">
+        <div id="resultBadge" class="result-status approved">APPROVED</div>
+        <div id="resultScore">0%</div>
+        <h2 id="resultTitle">Certificación aprobada</h2>
+        <p id="resultText"></p>
 
-        <div class="cert-result-actions">
-          <button id="downloadCertificatePdf" class="btn red" type="button">Descargar resultado PDF</button>
-          <a class="btn" href="./academy.html">Volver a Academia</a>
-          <button id="retryCertification" class="btn" type="button">Intentar nuevamente</button>
+        <div class="result-grid">
+          <div class="result-item">
+            <span>Correctas</span>
+            <b id="resultCorrect">0</b>
+          </div>
+          <div class="result-item">
+            <span>Total</span>
+            <b id="resultTotal">0</b>
+          </div>
+          <div class="result-item">
+            <span>Mínimo</span>
+            <b id="resultPassMark">80%</b>
+          </div>
+          <div class="result-item">
+            <span>Fecha</span>
+            <b id="resultDate">—</b>
+          </div>
+        </div>
+
+        <div class="result-item" style="margin-bottom:20px">
+          <span>Certificate / Result ID</span>
+          <b id="resultCertificateId">—</b>
+        </div>
+
+        <div class="result-actions">
+          <button id="downloadCertificate" class="pdf-button" type="button">Descargar certificado PDF</button>
+          <button id="retryCertification" class="back-button" type="button">Intentar nuevamente</button>
+          <a id="resultBack" class="back-button" href="./academy.html">Volver a la Academia</a>
         </div>
       </div>
     </section>
+
+    <div id="fatalMessage" class="message"></div>
+    <div class="footer-note">DoorDash AM Training Academy · La aprobación requiere 80% o más.</div>
   </main>
 
-  <div id="fatalMessage" class="message"></div>
-  <div id="toast" class="toast"></div>
   <script src="./firebase-config.js"></script>
   <script type="module" src="./app.js"></script>
 </body>
