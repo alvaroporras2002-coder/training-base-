@@ -9,61 +9,82 @@ window.TRAINING_FIREBASE_CONFIG = Object.freeze({
 
 window.TRAINING_APP_SETTINGS = Object.freeze({
   appName: "DoorDash AM Training Academy",
-  appVersion: "15.0-academy",
+  appVersion: "15.1-certification",
 
-  // IMPORTANTE:
-  // Este nombre debe coincidir con el simulador grande
-  // para compartir la misma sesion de Google.
+  // Debe coincidir con el nombre utilizado por el simulador.
   firebaseAppName: "training-simulator-v14-cloud",
 
-  // Dejalo vacio para permitir cualquier cuenta Google.
-  // Si luego quieres solo @ext.doordash.com:
+  // Déjalo vacío para permitir cualquier cuenta Google.
+  // Para limitarlo, por ejemplo:
   // allowedEmailDomain: "ext.doordash.com",
   allowedEmailDomain: "",
 
   supportEmail: "",
 
-  // URLs de la plataforma
+  // =====================================================
+  // PÁGINAS
+  // =====================================================
+
   loginUrl: "./index.html",
   academyUrl: "./academy.html",
   simulatorWrapperUrl: "./simulator.html",
 
-  // NO vamos a modificar ni renombrar el archivo grande.
-  // %20 representa el espacio en el nombre.
+  // Archivo principal del Merchant Portal Simulator.
   simulatorFile: "./training-simulator-v14%20(1).html",
 
   certificationUrl: "./certification.html",
   adminUrl: "./admin.html",
 
-  // Colecciones actuales de Firebase
+  // =====================================================
+  // FIRESTORE COLLECTIONS
+  // =====================================================
+
   registrationsCollection: "trainingRegistrations",
   accessCollection: "trainingAccess",
   adminNotesCollection: "trainingAdminNotes",
   adminsCollection: "trainingAdmins",
   presenceCollection: "trainingPresence",
-
-  // Nuevas colecciones de Academy v15
   teamsCollection: "trainingTeams",
   assignmentsCollection: "trainingAssignments",
   certificationAttemptsCollection: "trainingCertificationAttempts",
   certificationDraftsCollection: "trainingCertificationDrafts",
   sessionsCollection: "trainingSessions",
 
-  // Training
+  // =====================================================
+  // TRAINING
+  // =====================================================
+
   defaultRole: "Account Manager",
+
   registrationVersion: 4,
+
   caseCount: 20,
+
+  // Cada caso se aprueba con 80%.
   quizPassPercent: 80,
 
-  // Presencia en tiempo real
+  // =====================================================
+  // REAL-TIME PRESENCE
+  // =====================================================
+
   presenceHeartbeatMs: 20000,
+
   presenceOnlineWindowMs: 70000,
 
-  // Tiempo activo de entrenamiento
   sessionHeartbeatMs: 30000,
 
-  // Certificacion final
+  // =====================================================
+  // FINAL CERTIFICATION
+  // =====================================================
+
+  // El banco contiene 100 preguntas.
+  // La certificación selecciona 40.
   certificationQuestionCount: 40,
-  certificationPassPercent: 85,
+
+  // IMPORTANTE:
+  // 80% es la nota mínima para obtener APPROVED.
+  certificationPassPercent: 80,
+
+  // Tiempo máximo.
   certificationMinutes: 60
 });
