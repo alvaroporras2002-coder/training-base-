@@ -38,7 +38,33 @@ const names = {
   sessions: settings.sessionsCollection || "trainingSessions"
 };
 
-const $ = id => document.getElementById(id);
+const $ = id => {
+  const el = document.getElementById(id);
+
+  if (!el) {
+    console.warn(
+      `[Training Academy] Elemento no encontrado: #${id}`
+    );
+  }
+
+  return el;
+};
+
+const setClick = (id, handler) => {
+  const el = $(id);
+
+  if (el) {
+    el.onclick = handler;
+  }
+};
+
+const setHidden = (id, value) => {
+  const el = $(id);
+
+  if (el) {
+    el.hidden = value;
+  }
+};
 
 const esc = value =>
   String(value ?? "").replace(
