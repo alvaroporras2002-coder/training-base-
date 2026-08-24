@@ -2550,23 +2550,27 @@ async function initCertification(){
     }
   }
 
-  function showSection(name){
-    $("certIntro").hidden =
-      name !==
-      "intro";
+function showSection(name) {
+  setHidden(
+    "certIntro",
+    name !== "intro"
+  );
 
-    $("certExam").hidden =
-      name !==
-      "exam";
+  setHidden(
+    "certExam",
+    name !== "exam"
+  );
 
-    $("certSubmitting").hidden =
-      name !==
-      "submitting";
+  setHidden(
+    "certSubmitting",
+    name !== "submitting"
+  );
 
-    $("certResult").hidden =
-      name !==
-      "result";
-  }
+  setHidden(
+    "certResult",
+    name !== "result"
+  );
+}
 
   function saveExam(){
     if(exam){
