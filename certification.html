@@ -1,241 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DoorDash Training Certification</title>
-  <style>
-    :root{--red:#f32912;--purple:#7b35d9;--ink:#11131a;--muted:#667085;--bg:#f4f5f8;--card:#fff;--line:#e5e7eb;--green:#18864b;--danger:#b42318}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:radial-gradient(circle at 15% 5%,rgba(243,41,18,.09),transparent 25%),radial-gradient(circle at 90% 0%,rgba(123,53,217,.12),transparent 30%),var(--bg);color:var(--ink);min-height:100vh}
-    a{text-decoration:none;color:inherit}
-    button{font:inherit}
-    .topbar{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:5}
-    .brand{font-weight:900;letter-spacing:.04em;color:var(--red);font-size:20px}
-    .subbrand{font-size:12px;color:var(--muted);margin-top:2px}
-    .top-right{display:flex;align-items:center;gap:16px;font-size:13px}
-    .user-name{font-weight:700}
-    .ghost{border:1px solid var(--line);background:#fff;border-radius:999px;padding:11px 16px;font-weight:800;cursor:pointer}
-    .shell{width:min(920px,calc(100% - 32px));margin:34px auto 60px}
-    .hero{background:linear-gradient(115deg,var(--red),#f05243 46%,var(--purple));border-radius:28px 28px 0 0;color:#fff;padding:36px 38px 34px;box-shadow:0 20px 50px rgba(20,20,40,.12)}
-    .eyebrow{font-size:12px;font-weight:900;letter-spacing:.14em;opacity:.9}
-    h1{margin:8px 0 8px;font-size:36px;line-height:1.08}
-    .hero p{margin:0;max-width:720px;font-size:15px;line-height:1.6;color:rgba(255,255,255,.94)}
-    .main-card{background:#fff;border-radius:0 0 28px 28px;box-shadow:0 20px 50px rgba(20,20,40,.12);padding:28px}
-    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
-    .stat{border:1px solid var(--line);border-radius:18px;padding:18px;background:linear-gradient(180deg,#fff,#fafbfc)}
-    .stat .label{font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#7b8494}
-    .stat .value{font-size:24px;font-weight:900;margin-top:6px}
-    .notice{border:1px solid #d9d2ff;background:#f7f4ff;border-radius:16px;padding:16px 18px;margin:18px 0;color:#4d3a83}
-    .notice b{display:block;color:#31215c;margin-bottom:4px}
-    .section{display:none}
-    .section.active{display:block}
-    .start-card{padding:18px 0 6px}
-    .primary{width:100%;border:none;border-radius:16px;background:linear-gradient(90deg,var(--red),#ff361c);color:#fff;padding:16px 20px;font-weight:900;cursor:pointer;box-shadow:0 10px 24px rgba(243,41,18,.23)}
-    .exam-head{border-radius:22px;background:linear-gradient(105deg,#141414,#34215f);color:#fff;padding:18px 20px;margin-bottom:16px}
-    .exam-line{display:flex;justify-content:space-between;align-items:center;gap:16px}
-    .question-progress{height:6px;border-radius:999px;background:rgba(255,255,255,.22);overflow:hidden;margin-top:14px}
-    #certProgress{height:100%;background:linear-gradient(90deg,#ff4b35,#b16bff);width:0%;transition:width .2s ease}
-    .timer-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.8}
-    #certTimer{font-size:24px;font-weight:900}
-    .question-card{border:1px solid var(--line);background:#fff;border-radius:22px;padding:22px}
-    #questionCount{font-weight:900;color:#40345a;font-size:13px}
-    #questionSkill{font-size:12px;color:#7c8493;margin-top:5px}
-    #questionContext{margin-top:16px;padding:14px 16px;border-radius:14px;background:#faf7f4;color:#4b5563;line-height:1.55}
-    #questionText{font-size:22px;line-height:1.3;margin:18px 0 18px;font-weight:900}
-    .options{display:grid;gap:12px}
-    .cert-option{width:100%;display:grid;grid-template-columns:42px 1fr 28px;align-items:center;gap:14px;text-align:left;border:2px solid #e7e9ee;background:#fff;border-radius:16px;padding:15px 16px;cursor:pointer;transition:.15s ease}
-    .cert-option:hover{border-color:#c8b8e9;transform:translateY(-1px)}
-    .cert-option.selected{border-color:var(--red);background:#fff7f5;box-shadow:0 8px 20px rgba(243,41,18,.08)}
-    .cert-option-letter{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#f1f2f5;font-weight:900}
-    .cert-option.selected .cert-option-letter{background:var(--red);color:#fff}
-    .cert-option-copy{font-size:15px;line-height:1.45;font-weight:700}
-    .cert-option-check{opacity:0;font-weight:900;color:var(--red);font-size:20px}
-    .cert-option.selected .cert-option-check{opacity:1}
-    .exam-actions{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:18px}
-    .secondary{border:1px solid var(--line);background:#fff;border-radius:14px;padding:13px 18px;font-weight:800;cursor:pointer}
-    .secondary:disabled,.primary:disabled{opacity:.55;cursor:not-allowed}
-    .hint{font-size:12px;color:#7c8493;text-align:center;flex:1}
-    .message{display:none;padding:12px 14px;border-radius:12px;margin-top:16px;font-size:13px;font-weight:700}
-    .message.show{display:block}
-    .message.info{background:#eef4ff;color:#224a9b;border:1px solid #c8d8ff}
-    .message.success{background:#edf9f1;color:#136b3b;border:1px solid #bde7ca}
-    .message.error{background:#fff1f0;color:#a22b20;border:1px solid #f4c4be}
-    .submitting-card,.result-card{border:1px solid var(--line);background:#fff;border-radius:22px;padding:28px;text-align:center}
-    .spinner{width:54px;height:54px;border:5px solid #ece8f5;border-top-color:var(--purple);border-radius:50%;margin:0 auto 18px;animation:spin 1s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .result-status{display:inline-flex;padding:8px 14px;border-radius:999px;font-size:12px;font-weight:900;letter-spacing:.08em;margin-bottom:12px}
-    .result-status.approved{background:#eaf8ef;color:var(--green)}
-    .result-status.not-approved{background:#fff0ee;color:var(--danger)}
-    #resultScore{font-size:58px;font-weight:900;line-height:1}
-    #resultTitle{margin:12px 0 8px;font-size:28px}
-    #resultText{color:#667085;line-height:1.6;max-width:660px;margin:0 auto 22px}
-    .result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0}
-    .result-item{border:1px solid var(--line);border-radius:14px;padding:13px}
-    .result-item span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#7b8494;font-weight:900}
-    .result-item b{display:block;margin-top:5px;font-size:15px;word-break:break-word}
-    .result-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
-    .pdf-button{border:none;background:#11131a;color:#fff;border-radius:14px;padding:14px 20px;font-weight:900;cursor:pointer}
-    .back-button{border:1px solid var(--line);background:#fff;color:#11131a;border-radius:14px;padding:14px 20px;font-weight:900;cursor:pointer}
-    .footer-note{text-align:center;color:#8b93a1;font-size:11px;margin-top:20px}
-    #fatalMessage{margin-top:18px}
-    @media(max-width:720px){
-      .topbar{padding:0 16px}
-      .shell{width:min(100% - 18px,920px);margin:18px auto 35px}
-      .hero{padding:28px 22px}
-      h1{font-size:29px}
-      .main-card{padding:18px}
-      .stats{grid-template-columns:1fr}
-      .result-grid{grid-template-columns:1fr 1fr}
-      .exam-line{align-items:flex-start}
-      .question-card{padding:16px}
-      #questionText{font-size:19px}
-      .exam-actions{flex-wrap:wrap}
-      .hint{order:3;flex-basis:100%}
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DoorDash Training Certification</title>
+<style>
+:root{--red:#ff3008;--purple:#6f36d5;--ink:#17181c;--muted:#6c7280;--line:#e6e8ee;--bg:#f7f8fa;--green:#168744;--danger:#b42318}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:radial-gradient(circle at 90% 5%,#eee8ff,transparent 30%),radial-gradient(circle at 5% 95%,#fff0ec,transparent 28%),var(--bg);min-height:100vh}button,a{font:inherit}.top{height:70px;background:#fff;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;padding:0 28px}.brand b{display:block;color:var(--red);font-size:17px;letter-spacing:.04em}.brand span{font-size:12px;color:var(--muted)}.back{border:1px solid var(--line);border-radius:999px;background:#fff;padding:10px 15px;text-decoration:none;color:var(--ink);font-weight:800}.wrap{width:min(920px,calc(100% - 24px));margin:28px auto 50px}.hero{background:linear-gradient(115deg,#ff3008,#ff5b47 45%,#7b3ff2);color:white;padding:34px 36px;border-radius:26px 26px 0 0;box-shadow:0 20px 50px #1b172a18}.eyebrow{font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px}.hero h1{margin:0 0 10px;font-size:clamp(30px,5vw,44px);letter-spacing:-.035em}.hero p{margin:0;max-width:760px;line-height:1.55;font-size:14px}.surface{background:#fff;border:1px solid var(--line);border-top:0;padding:24px;border-radius:0 0 26px 26px;box-shadow:0 20px 50px #1b172a18}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}.metric{background:#fafbfc;border:1px solid var(--line);border-radius:17px;padding:17px}.metric small{display:block;text-transform:uppercase;letter-spacing:.08em;font-size:10px;font-weight:900;color:#7b808c;margin-bottom:9px}.metric strong{font-size:28px}.info{background:#f5f2ff;border:1px solid #ddd4ff;border-radius:16px;padding:15px;margin-bottom:18px}.info b{font-size:13px}.info p{margin:5px 0 0;color:#626776;font-size:13px;line-height:1.45}.primary,.secondary{min-height:52px;border-radius:14px;font-weight:900;padding:0 20px}.primary{background:var(--red);color:#fff;border:0}.secondary{background:#fff;border:1px solid #d9dce3;color:#17181c}.primary:hover{filter:brightness(.96)}.primary:disabled{opacity:.55}.full{width:100%}.examTop{background:linear-gradient(115deg,#15161a,#3a285f,#6f36d5);color:white;border-radius:23px;padding:20px;margin-bottom:15px}.row{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.counter{font-weight:900}.timer{text-align:right}.timer small{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.1em;opacity:.75}.timer strong{font-size:25px}.track{height:7px;background:#ffffff22;border-radius:999px;margin-top:14px;overflow:hidden}.fill{height:100%;width:0;background:#fff;border-radius:999px}.card{background:#fff;border:1px solid var(--line);border-radius:23px;padding:23px;box-shadow:0 20px 50px #1b172a15}.pill{display:inline-flex;padding:7px 10px;border-radius:999px;background:#f0ecff;color:#5b39c5;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px}.context{background:#f8f9fb;border:1px solid #eceef2;border-radius:15px;padding:14px 15px;color:#5c6170;font-size:13px;line-height:1.5;margin-bottom:18px}.q{font-size:24px;line-height:1.25;margin:0 0 20px;letter-spacing:-.025em}.opts{display:grid;gap:11px}.opt{display:grid;grid-template-columns:40px 1fr 24px;gap:13px;align-items:center;width:100%;padding:14px 15px;border:1px solid #dfe2e8;background:#fff;border-radius:16px;text-align:left;color:#202228}.opt:hover{border-color:#b7bbc5}.opt.sel{border:2px solid var(--red);background:#fff6f3}.letter{width:38px;height:38px;border-radius:50%;background:#f1f2f5;display:grid;place-items:center;font-weight:900;color:#555b68}.sel .letter{background:var(--red);color:#fff}.copy{font-size:14px;line-height:1.45;font-weight:700}.check{opacity:0;color:var(--red);font-size:20px;font-weight:900}.sel .check{opacity:1}.actions{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:13px;margin-top:17px}.note{text-align:center;font-size:12px;color:#767c88;font-weight:700}.msg{display:none;margin-top:14px;padding:12px 14px;border-radius:13px;font-size:13px}.msg.show{display:block}.msg.error{color:var(--danger);background:#fff0ee;border:1px solid #f1c7c1}.msg.success{color:#16723d;background:#eaf7ef;border:1px solid #c6e8d1}.msg.info{color:#315b9d;background:#eef4ff;border:1px solid #d6e4ff}.submit{text-align:center;padding:65px 20px}.spinner{width:44px;height:44px;border:5px solid #ececf2;border-top-color:var(--red);border-radius:50%;margin:0 auto 18px;animation:s .8s linear infinite}@keyframes s{to{transform:rotate(360deg)}}.submit h2{margin:0 0 8px}.submit p{margin:0;color:var(--muted)}.result{text-align:center}.status{border-radius:21px;padding:27px;margin-bottom:18px}.approved{background:#eaf7ef;border:1px solid #bfe2ca}.failed{background:#fff0ee;border:1px solid #f1c7c1}.badge{display:inline-flex;padding:8px 12px;border-radius:999px;font-size:11px;font-weight:1000;letter-spacing:.08em;margin-bottom:10px}.approved .badge{background:#d7f1e0;color:#16723d}.failed .badge{background:#ffdcd8;color:#a52a21}.score{font-size:58px;font-weight:1000;line-height:1}.status h2{margin:10px 0 7px;font-size:26px}.status p{margin:0 auto;max-width:650px;color:#606574;line-height:1.5}.resultgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;text-align:left;margin-bottom:12px}.item{border:1px solid var(--line);border-radius:15px;padding:14px;background:#fff}.item small{display:block;color:#7c828e;text-transform:uppercase;letter-spacing:.07em;font-size:9px;font-weight:900;margin-bottom:6px}.item strong{font-size:14px;word-break:break-word}.fatal{margin-top:14px;color:var(--danger);background:#fff0ee;border:1px solid #f1c7c1;padding:12px;border-radius:12px;font-size:12px}.hidden{display:none!important}@media(max-width:700px){.top{padding:0 14px}.brand span{display:none}.wrap{width:min(100% - 12px,920px)}.hero{padding:27px 22px}.surface{padding:15px}.metrics{grid-template-columns:1fr}.actions{grid-template-columns:1fr}.note{order:-1}.resultgrid{grid-template-columns:1fr 1fr}.card{padding:17px}.q{font-size:21px}.opt{grid-template-columns:37px 1fr 20px}.letter{width:36px;height:36px}}
+</style>
 </head>
 <body data-page="certification">
-  <header class="topbar">
-    <div>
-      <div class="brand">DOORDASH</div>
-      <div class="subbrand">AM Training Academy · Final Certification</div>
+<header class="top">
+  <div class="brand"><b>DOORDASH</b><span>AM Training Academy · Final Certification</span></div>
+  <div><span id="certUser" style="margin-right:12px;color:#666;font-size:13px;font-weight:700">Trainee</span><a id="certBack" class="back" href="./academy.html">Volver a la Academia</a></div>
+</header>
+<main class="wrap">
+<section id="certIntro">
+  <div class="hero"><div class="eyebrow">Final Certification</div><h1>Certificación de Account Manager</h1><p>Evaluación formal sin pistas ni retroalimentación inmediata. Tu resultado queda guardado y podrás descargar un PDF del resultado.</p></div>
+  <div class="surface">
+    <div class="metrics">
+      <div class="metric"><small>Preguntas</small><strong id="certCount">40</strong></div>
+      <div class="metric"><small>Nota mínima</small><strong id="certPass">80%</strong></div>
+      <div class="metric"><small>Tiempo</small><strong id="certMinutes">60 min</strong></div>
     </div>
-    <div class="top-right">
-      <span class="user-name" id="certUser">Trainee</span>
-      <a class="ghost" id="certBack" href="./academy.html">Volver a la Academia</a>
-    </div>
-  </header>
-
-  <main class="shell">
-    <section id="certIntro" class="section active">
-      <div class="hero">
-        <div class="eyebrow">FINAL CERTIFICATION</div>
-        <h1>Certificación de Account Manager</h1>
-        <p>Evaluación formal sin pistas ni retroalimentación inmediata. El resultado queda guardado en tu perfil y podrás descargar un PDF oficial del intento.</p>
-      </div>
-
-      <div class="main-card">
-        <div class="stats">
-          <div class="stat">
-            <div class="label">Preguntas</div>
-            <div class="value" id="certCount">40</div>
-          </div>
-          <div class="stat">
-            <div class="label">Nota mínima</div>
-            <div class="value" id="certPass">80%</div>
-          </div>
-          <div class="stat">
-            <div class="label">Tiempo</div>
-            <div class="value" id="certMinutes">60 min</div>
-          </div>
-        </div>
-
-        <div class="notice">
-          <b>Qué se evalúa</b>
-          Discovery, diagnóstico de causa raíz, navegación del Portal, diseño de solución y cierre verificable.
-        </div>
-
-        <div id="previousResultCard" class="notice" hidden>
-          <b>Último resultado guardado</b>
-          <span id="previousResultText"></span>
-          <div style="margin-top:12px">
-            <button class="secondary" id="previousResultDownload" type="button">Descargar último PDF</button>
-          </div>
-        </div>
-
-        <div class="start-card">
-          <button id="startCertification" class="primary" type="button">Comenzar certificación</button>
-        </div>
-
-        <div id="certMessage" class="message"></div>
-      </div>
-    </section>
-
-    <section id="certExam" class="section">
-      <div class="exam-head">
-        <div class="exam-line">
-          <div>
-            <div id="questionCount">Pregunta 1 de 40</div>
-            <div id="questionSkill"></div>
-          </div>
-          <div style="text-align:right">
-            <div class="timer-label">Tiempo restante</div>
-            <div id="certTimer">60:00</div>
-          </div>
-        </div>
-        <div class="question-progress">
-          <div id="certProgress"></div>
-        </div>
-      </div>
-
-      <div class="question-card">
-        <div id="questionContext"></div>
-        <div id="questionText"></div>
-        <div id="questionOptions" class="options"></div>
-      </div>
-
-      <div class="exam-actions">
-        <button id="prevQuestion" class="secondary" type="button">Anterior</button>
-        <div id="certSubmitState" class="hint">Tu progreso se guarda automáticamente.</div>
-        <button id="nextQuestion" class="primary" style="width:auto;min-width:150px" type="button">Siguiente</button>
-      </div>
-
-      <div id="certExamMessage" class="message"></div>
-    </section>
-
-    <section id="certSubmitting" class="section">
-      <div class="submitting-card">
-        <div class="spinner"></div>
-        <h2>Enviando certificación</h2>
-        <p>Guardando el resultado en tu perfil y preparando la constancia.</p>
-      </div>
-    </section>
-
-    <section id="certResult" class="section">
-      <div class="result-card">
-        <div id="resultBadge" class="result-status approved">APPROVED</div>
-        <div id="resultScore">0%</div>
-        <h2 id="resultTitle">Certificación aprobada</h2>
-        <p id="resultText"></p>
-
-        <div class="result-grid">
-          <div class="result-item">
-            <span>Correctas</span>
-            <b id="resultCorrect">0</b>
-          </div>
-          <div class="result-item">
-            <span>Total</span>
-            <b id="resultTotal">0</b>
-          </div>
-          <div class="result-item">
-            <span>Mínimo</span>
-            <b id="resultPassMark">80%</b>
-          </div>
-          <div class="result-item">
-            <span>Fecha</span>
-            <b id="resultDate">—</b>
-          </div>
-        </div>
-
-        <div class="result-item" style="margin-bottom:20px">
-          <span>Certificate / Result ID</span>
-          <b id="resultCertificateId">—</b>
-        </div>
-
-        <div class="result-actions">
-          <button id="downloadCertificate" class="pdf-button" type="button">Descargar certificado PDF</button>
-          <button id="retryCertification" class="back-button" type="button">Intentar nuevamente</button>
-          <a id="resultBack" class="back-button" href="./academy.html">Volver a la Academia</a>
-        </div>
-      </div>
-    </section>
-
-    <div id="fatalMessage" class="message"></div>
-    <div class="footer-note">DoorDash AM Training Academy · La aprobación requiere 80% o más.</div>
-  </main>
-
-  <script src="./firebase-config.js"></script>
-  <script type="module" src="./app.js"></script>
+    <div class="info"><b>Qué se evalúa</b><p>Discovery, diagnóstico de causa raíz, navegación del Portal, diseño de solución, comunicación y cierre verificable.</p></div>
+    <button id="startCertification" class="primary full" type="button">Comenzar certificación</button>
+  </div>
+</section>
+<section id="certExam" hidden>
+  <div class="examTop"><div class="row"><div id="questionCount" class="counter">Pregunta 1 de 40</div><div class="timer"><small>Tiempo restante</small><strong id="certTimer">60:00</strong></div></div><div class="track"><div id="certProgress" class="fill"></div></div></div>
+  <div class="card">
+    <div id="questionSkill" class="pill">Competencia</div>
+    <div id="questionContext" class="context"></div>
+    <h2 id="questionText" class="q"></h2>
+    <div id="questionOptions" class="opts" role="radiogroup"></div>
+    <div class="actions"><button id="prevQuestion" class="secondary" type="button">Anterior</button><div class="note">Tu progreso se guarda automáticamente.</div><button id="nextQuestion" class="primary" type="button" disabled>Siguiente</button></div>
+  </div>
+</section>
+<section id="certSubmitting" class="surface submit" hidden><div class="spinner"></div><h2>Guardando tu certificación</h2><p>Tu resultado se está enviando y guardando de forma segura.</p></section>
+<section id="certResult" class="surface result" hidden>
+  <div id="resultStatus" class="status approved"><div id="resultBadge" class="badge">APPROVED</div><div id="resultScore" class="score">80%</div><h2 id="resultTitle">Certificación aprobada</h2><p id="resultText">Tu resultado quedó registrado.</p></div>
+  <div class="resultgrid">
+    <div class="item"><small>Correctas</small><strong id="resultCorrect">32</strong></div>
+    <div class="item"><small>Total</small><strong id="resultTotal">40</strong></div>
+    <div class="item"><small>Nota mínima</small><strong id="resultPassMark">80%</strong></div>
+    <div class="item"><small>Fecha</small><strong id="resultDate">—</strong></div>
+  </div>
+  <div class="item" style="text-align:left;margin-bottom:12px"><small>Certification ID</small><strong id="resultCertificateId">—</strong></div>
+  <button id="downloadCertificate" class="primary full" type="button">Descargar certificado PDF</button>
+  <button id="retryCertification" class="secondary full" type="button" style="margin-top:10px">Intentar nuevamente</button>
+</section>
+<div id="certMessage" class="msg" role="status" aria-live="polite"></div>
+<div id="fatalMessage" class="fatal" aria-live="polite"></div>
+<div id="toast" class="hidden"></div>
+</main>
+<script type="module" src="./firebase-config.js"></script>
+<script type="module" src="./app.js"></script>
 </body>
 </html>
