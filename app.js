@@ -8,21 +8,14 @@ import {
   collection, query, where, onSnapshot, getDocs, writeBatch,
   serverTimestamp, increment
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-
-import {
-  CASES,
-  MODULES,
-  getCase,
-  getModule,
-  buildCertificationBank
-} from "./academy-data.js";
+import { CASES, MODULES, getCase, getModule, buildCertificationBank } from "./academy-data.js";
 
 const config = window.TRAINING_FIREBASE_CONFIG || {};
 const settings = window.TRAINING_APP_SETTINGS || {};
 const page = document.body.dataset.page || "";
 const appName = settings.firebaseAppName || "training-simulator-v14-cloud";
 
-if (!config.apiKey || !config.projectId || !config.appId) {
+if(!config.apiKey || !config.projectId || !config.appId){
   throw new Error("Falta la configuración de Firebase en firebase-config.js");
 }
 
@@ -50,32 +43,41 @@ const $ = id => document.getElementById(id);
 const esc = value =>
   String(value ?? "").replace(
     /[&<>"']/g,
-    char => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    }[char])
+    char =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[char]
   );
 
 const clamp = value =>
-  Math.max(0, Math.min(100, Math.round(Number(value) || 0)));
+  Math.max(
+    0,
+    Math.min(
+      100,
+      Math.round(Number(value) || 0)
+    )
+  );
 
-const nowIso = () => new Date().toISOString();
+const nowIso = () =>
+  new Date().toISOString();
 
 const dateKey = value => {
-  const d = value instanceof Date
-    ? value
-    : new Date(value || Date.now());
+  const d =
+    value instanceof Date
+      ? value
+      : new Date(value || Date.now());
 
   return d.toISOString().slice(0, 10);
 };
 
 const dateOf = value => {
-  if (!value) return null;
+  if(!value) return null;
 
-  if (typeof value.toDate === "function") {
+  if(typeof value.toDate === "function"){
     return value.toDate();
   }
 
@@ -122,7 +124,7 @@ const fmtDuration = seconds => {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
 
-  if (h) {
+  if(h){
     return `${h} h ${m} min`;
   }
 
@@ -130,12 +132,11 @@ const fmtDuration = seconds => {
 };
 
 const initials = (name, email) => {
-  const parts = String(
-    name || email || "?"
-  )
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
+  const parts =
+    String(name || email || "?")
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
 
   return `${parts[0]?.[0] || "?"}${parts[1]?.[0] || ""}`.toUpperCase();
 };
@@ -143,7 +144,7 @@ const initials = (name, email) => {
 const toast = text => {
   const el = $("toast");
 
-  if (!el) return;
+  if(!el) return;
 
   el.textContent = text;
   el.classList.add("show");
@@ -161,10 +162,9 @@ const setMessage = (
   text = "",
   type = "error"
 ) => {
-  if (!el) return;
+  if(!el) return;
 
   el.textContent = text;
-
   el.className =
     `message${text ? ` show ${type}` : ""}`;
 };
@@ -174,12 +174,12 @@ const busy = (
   on,
   label = "Procesando..."
 ) => {
-  if (!button) return;
+  if(!button) return;
 
-  if (on) {
+  if(on){
     button.dataset.old = button.textContent;
     button.textContent = label;
-  } else {
+  }else{
     button.textContent =
       button.dataset.old ||
       button.textContent;
@@ -191,23 +191,23 @@ const busy = (
 const errorText = error => {
   const code = String(error?.code || "");
 
-  if (code.includes("popup-closed-by-user")) {
+  if(code.includes("popup-closed-by-user")){
     return "Se cerró la ventana de Google antes de completar el acceso.";
   }
 
-  if (code.includes("popup-blocked")) {
+  if(code.includes("popup-blocked")){
     return "El navegador bloqueó la ventana de Google. Permite ventanas emergentes.";
   }
 
-  if (code.includes("unauthorized-domain")) {
+  if(code.includes("unauthorized-domain")){
     return "Este dominio no está autorizado en Firebase Authentication.";
   }
 
-  if (code.includes("permission-denied")) {
+  if(code.includes("permission-denied")){
     return "Firestore rechazó la operación. Revisa las reglas de seguridad v15.";
   }
 
-  if (code.includes("invalid-credential")) {
+  if(code.includes("invalid-credential")){
     return "Las credenciales no son válidas.";
   }
 
@@ -215,7 +215,7 @@ const errorText = error => {
     "Ocurrió un error inesperado.";
 };
 
-function authReady() {
+function authReady(){
   return new Promise(resolve => {
     const unsub =
       onAuthStateChanged(
@@ -228,64 +228,68 @@ function authReady() {
   });
 }
 
-function allowedEmail(email) {
-  const domain = String(
-    settings.allowedEmailDomain || ""
-  )
-    .trim()
-    .toLowerCase()
-    .replace(/^@/, "");
+function allowedEmail(email){
+  const domain =
+    String(settings.allowedEmailDomain || "")
+      .trim()
+      .toLowerCase()
+      .replace(/^@/, "");
 
-  return !domain ||
+  return (
+    !domain ||
     String(email || "")
       .toLowerCase()
-      .endsWith(`@${domain}`);
+      .endsWith(`@${domain}`)
+  );
 }
 
-function languageFromBrowser() {
-  const code = String(
-    navigator.language || "en"
-  ).toLowerCase();
+function languageFromBrowser(){
+  const code =
+    String(navigator.language || "en")
+      .toLowerCase();
 
-  if (code.startsWith("es")) {
+  if(code.startsWith("es")){
     return "Spanish";
   }
 
-  if (code.startsWith("fr")) {
+  if(code.startsWith("fr")){
     return "French";
   }
 
   return "English";
 }
 
-async function adminRecord(user) {
-  if (!user) return null;
+async function adminRecord(user){
+  if(!user) return null;
 
-  const snap = await getDoc(
-    doc(
-      db,
-      names.admins,
-      user.uid
-    )
-  );
+  const snap =
+    await getDoc(
+      doc(
+        db,
+        names.admins,
+        user.uid
+      )
+    );
 
-  return snap.exists() &&
+  return (
+    snap.exists() &&
     snap.data().active === true
-    ? {
-        uid: user.uid,
-        ...snap.data()
-      }
-    : null;
+      ? {
+          uid: user.uid,
+          ...snap.data()
+        }
+      : null
+  );
 }
 
-async function ensureRegistration(user) {
-  if (!user) {
+async function ensureRegistration(user){
+  if(!user){
     throw new Error(
       "Sesión no disponible."
     );
   }
 
-  if (!allowedEmail(user.email)) {
+  if(!allowedEmail(user.email)){
     await signOut(auth);
 
     throw new Error(
@@ -293,27 +297,29 @@ async function ensureRegistration(user) {
     );
   }
 
-  const accessRef = doc(
-    db,
-    names.access,
-    user.uid
-  );
+  const accessRef =
+    doc(
+      db,
+      names.access,
+      user.uid
+    );
 
   const accessSnap =
     await getDoc(accessRef);
 
-  if (accessSnap.exists()) {
+  if(accessSnap.exists()){
     const access =
       accessSnap.data();
 
-    if (
+    if(
       String(access.status || "") ===
       "blocked"
-    ) {
-      const err = new Error(
-        access.message ||
-        "Tu acceso al entrenamiento está bloqueado."
-      );
+    ){
+      const err =
+        new Error(
+          access.message ||
+          "Tu acceso al entrenamiento está bloqueado."
+        );
 
       err.name =
         "AccessBlockedError";
@@ -321,13 +327,13 @@ async function ensureRegistration(user) {
       throw err;
     }
 
-    if (
+    if(
       String(access.status || "") ===
       "archived"
-    ) {
-      try {
+    ){
+      try{
         await deleteDoc(accessRef);
-      } catch (error) {
+      }catch(error){
         console.warn(
           "Could not remove old archived access",
           error
@@ -336,11 +342,12 @@ async function ensureRegistration(user) {
     }
   }
 
-  const regRef = doc(
-    db,
-    names.registrations,
-    user.uid
-  );
+  const regRef =
+    doc(
+      db,
+      names.registrations,
+      user.uid
+    );
 
   const snap =
     await getDoc(regRef);
@@ -354,11 +361,9 @@ async function ensureRegistration(user) {
     `dd_academy_visit_${user.uid}`;
 
   const countVisit =
-    !sessionStorage.getItem(
-      visitKey
-    );
+    !sessionStorage.getItem(visitKey);
 
-  if (countVisit) {
+  if(countVisit){
     sessionStorage.setItem(
       visitKey,
       "1"
@@ -395,7 +400,8 @@ async function ensureRegistration(user) {
       "",
 
     country:
-      old.country || "",
+      old.country ||
+      "",
 
     language:
       old.language ||
@@ -424,7 +430,7 @@ async function ensureRegistration(user) {
       serverTimestamp()
   };
 
-  if (!snap.exists()) {
+  if(!snap.exists()){
     payload.role =
       settings.defaultRole ||
       "Account Manager";
@@ -455,7 +461,7 @@ async function ensureRegistration(user) {
     };
   }
 
-  if (countVisit) {
+  if(countVisit){
     payload.visitCount =
       increment(1);
   }
@@ -475,11 +481,11 @@ async function ensureRegistration(user) {
   };
 }
 
-async function requireUser() {
+async function requireUser(){
   const user =
     await authReady();
 
-  if (!user) {
+  if(!user){
     location.replace(
       settings.loginUrl ||
       "./index.html"
@@ -501,23 +507,25 @@ function startTracking(
   user,
   pageName,
   registration = {}
-) {
-  const presenceRef = doc(
-    db,
-    names.presence,
-    user.uid
-  );
+){
+  const presenceRef =
+    doc(
+      db,
+      names.presence,
+      user.uid
+    );
 
   const sessionId =
     `${user.uid}_${Date.now()}_${Math.random()
       .toString(36)
       .slice(2, 9)}`;
 
-  const sessionRef = doc(
-    db,
-    names.sessions,
-    sessionId
-  );
+  const sessionRef =
+    doc(
+      db,
+      names.sessions,
+      sessionId
+    );
 
   const presenceMs =
     Math.max(
@@ -542,8 +550,11 @@ function startTracking(
   let sessionStarted = false;
 
   const base = {
-    userId: user.uid,
-    uid: user.uid,
+    userId:
+      user.uid,
+
+    uid:
+      user.uid,
 
     email:
       user.email ||
@@ -583,18 +594,18 @@ function startTracking(
         user.uid
       ),
       snap => {
-        if (!snap.exists()) {
-          return;
-        }
+        if(!snap.exists()) return;
 
         const current =
           snap.data();
 
         base.teamId =
-          current.teamId || "";
+          current.teamId ||
+          "";
 
         base.team =
-          current.team || "";
+          current.team ||
+          "";
 
         base.displayName =
           current.fullName ||
@@ -609,19 +620,21 @@ function startTracking(
 
   const writePresence =
     async online => {
-      if (
+      if(
         stopped &&
         online
-      ) {
+      ){
         return;
       }
 
-      try {
+      try{
         await setDoc(
           presenceRef,
           {
             ...base,
-            online: !!online,
+
+            online:
+              !!online,
 
             heartbeatAt:
               serverTimestamp(),
@@ -636,7 +649,7 @@ function startTracking(
             merge: true
           }
         );
-      } catch (error) {
+      }catch(error){
         console.warn(
           "Presence sync failed",
           error
@@ -646,7 +659,7 @@ function startTracking(
 
   const writeSession =
     async ending => {
-      try {
+      try{
         const payload = {
           ...base,
 
@@ -656,14 +669,14 @@ function startTracking(
             serverTimestamp()
         };
 
-        if (!sessionStarted) {
+        if(!sessionStarted){
           payload.startedAt =
             serverTimestamp();
 
           sessionStarted = true;
         }
 
-        if (ending) {
+        if(ending){
           payload.endedAt =
             serverTimestamp();
         }
@@ -675,7 +688,7 @@ function startTracking(
             merge: true
           }
         );
-      } catch (error) {
+      }catch(error){
         console.warn(
           "Session sync failed",
           error
@@ -688,18 +701,17 @@ function startTracking(
 
   const pTimer =
     setInterval(
-      () =>
-        writePresence(true),
+      () => writePresence(true),
       presenceMs
     );
 
   const sTimer =
     setInterval(
       () => {
-        if (
+        if(
           document.visibilityState ===
           "visible"
-        ) {
+        ){
           activeSeconds +=
             Math.round(
               sessionMs / 1000
@@ -712,8 +724,7 @@ function startTracking(
     );
 
   const visibility =
-    () =>
-      writePresence(true);
+    () => writePresence(true);
 
   document.addEventListener(
     "visibilitychange",
@@ -722,7 +733,7 @@ function startTracking(
 
   const stop =
     async () => {
-      if (stopped) return;
+      if(stopped) return;
 
       stopped = true;
 
@@ -734,9 +745,9 @@ function startTracking(
         visibility
       );
 
-      try {
+      try{
         identityUnsub();
-      } catch (error) {}
+      }catch(error){}
 
       await Promise.allSettled([
         writeSession(true),
@@ -761,10 +772,11 @@ function startTracking(
   };
 }
 
-function caseBestFrom(reg) {
+function caseBestFrom(reg){
   const value =
     reg?.academyProgress
-      ?.caseBest || {};
+      ?.caseBest ||
+    {};
 
   return Object.fromEntries(
     Object.entries(value)
@@ -780,10 +792,8 @@ function caseBestFrom(reg) {
 function moduleProgress(
   module,
   caseBest
-) {
-  if (
-    !module?.caseIds?.length
-  ) {
+){
+  if(!module?.caseIds?.length){
     return 0;
   }
 
@@ -793,7 +803,8 @@ function moduleProgress(
         Number(
           caseBest[
             String(id)
-          ] || 0
+          ] ||
+          0
         ) >=
         Number(
           settings.quizPassPercent ||
@@ -808,9 +819,7 @@ function moduleProgress(
   );
 }
 
-function moduleProgressMap(
-  caseBest
-) {
+function moduleProgressMap(caseBest){
   return Object.fromEntries(
     MODULES.map(
       module => [
@@ -824,9 +833,7 @@ function moduleProgressMap(
   );
 }
 
-function latestAttempt(
-  attempts
-) {
+function latestAttempt(attempts){
   return [...attempts]
     .sort(
       (a, b) =>
@@ -842,12 +849,11 @@ function latestAttempt(
           )?.getTime() ||
           0
         )
-    )[0] || null;
+    )[0] ||
+    null;
 }
 
-function streakFromSessions(
-  sessions
-) {
+function streakFromSessions(sessions){
   const days =
     new Set(
       sessions
@@ -862,15 +868,17 @@ function streakFromSessions(
     );
 
   let count = 0;
-  const d = new Date();
 
-  for (;;) {
+  const d =
+    new Date();
+
+  for(;;){
     const key =
       d
         .toISOString()
         .slice(0, 10);
 
-    if (!days.has(key)) {
+    if(!days.has(key)){
       break;
     }
 
@@ -887,14 +895,15 @@ function streakFromSessions(
 function targetCaseForModule(
   module,
   caseBest
-) {
+){
   return (
     module.caseIds.find(
       id =>
         Number(
           caseBest[
             String(id)
-          ] || 0
+          ] ||
+          0
         ) <
         Number(
           settings.quizPassPercent ||
@@ -909,48 +918,56 @@ function assignmentComplete(
   item,
   caseBest,
   attempts
-) {
-  if (
+){
+  if(
     item.type ===
     "certification"
-  ) {
+  ){
     return attempts.some(
       a =>
         a.passed === true
     );
   }
 
-  if (
+  if(
     item.type ===
     "case"
-  ) {
-    return Number(
-      caseBest[
-        String(item.caseId)
-      ] || 0
-    ) >=
-    Number(
-      settings.quizPassPercent ||
-      80
+  ){
+    return (
+      Number(
+        caseBest[
+          String(
+            item.caseId
+          )
+        ] ||
+        0
+      ) >=
+      Number(
+        settings.quizPassPercent ||
+        80
+      )
     );
   }
 
-  if (
+  if(
     item.type ===
     "module"
-  ) {
-    return moduleProgress(
-      getModule(
-        item.moduleId
-      ),
-      caseBest
-    ) >= 100;
+  ){
+    return (
+      moduleProgress(
+        getModule(
+          item.moduleId
+        ),
+        caseBest
+      ) >=
+      100
+    );
   }
 
   return false;
 }
 
-async function initLogin() {
+async function initLogin(){
   const status =
     $("status");
 
@@ -966,8 +983,8 @@ async function initLogin() {
   const user =
     await authReady();
 
-  if (user) {
-    try {
+  if(user){
+    try{
       await ensureRegistration(
         user
       );
@@ -978,7 +995,7 @@ async function initLogin() {
       );
 
       return;
-    } catch (error) {
+    }catch(error){
       checking.hidden = true;
       panel.hidden = false;
 
@@ -988,7 +1005,7 @@ async function initLogin() {
         "error"
       );
     }
-  } else {
+  }else{
     checking.hidden = true;
     panel.hidden = false;
   }
@@ -1008,7 +1025,7 @@ async function initLogin() {
         "info"
       );
 
-      try {
+      try{
         const provider =
           new GoogleAuthProvider();
 
@@ -1031,7 +1048,7 @@ async function initLogin() {
           settings.academyUrl ||
           "./academy.html"
         );
-      } catch (error) {
+      }catch(error){
         setMessage(
           status,
           errorText(error),
@@ -1048,7 +1065,11 @@ async function initLogin() {
 }
 
 async function initAcademy(){
-  const {user,reg:initialReg} = await requireUser();
+  const {
+    user,
+    reg: initialReg
+  } =
+    await requireUser();
 
   startTracking(
     user,
@@ -1062,10 +1083,11 @@ async function initAcademy(){
     "Trainee";
 
   $("userEmail").textContent =
-    user.email || "";
+    user.email ||
+    "";
 
   $("logoutButton").onclick =
-    async()=>{
+    async () => {
       await window
         .__academyStopTracking?.();
 
@@ -1081,7 +1103,8 @@ async function initAcademy(){
     await adminRecord(user);
 
   if(admin){
-    $("adminLink").hidden = false;
+    $("adminLink").hidden =
+      false;
   }
 
   const state = {
@@ -1107,10 +1130,8 @@ async function initAcademy(){
 
   onSnapshot(
     regRef,
-    snap=>{
-      if(
-        snap.exists()
-      ){
+    snap => {
+      if(snap.exists()){
         state.reg = {
           uid:
             user.uid,
@@ -1134,10 +1155,10 @@ async function initAcademy(){
         user.uid
       )
     ),
-    snap=>{
+    snap => {
       state.assignments =
         snap.docs.map(
-          d=>({
+          d => ({
             id:
               d.id,
             ...d.data()
@@ -1160,10 +1181,10 @@ async function initAcademy(){
         user.uid
       )
     ),
-    snap=>{
+    snap => {
       state.attempts =
         snap.docs.map(
-          d=>({
+          d => ({
             id:
               d.id,
             ...d.data()
@@ -1186,10 +1207,10 @@ async function initAcademy(){
         user.uid
       )
     ),
-    snap=>{
+    snap => {
       state.sessions =
         snap.docs.map(
-          d=>({
+          d => ({
             id:
               d.id,
             ...d.data()
@@ -1200,9 +1221,7 @@ async function initAcademy(){
     }
   );
 
-  async function autoCompleteAssignments(
-    caseBest
-  ){
+  async function autoCompleteAssignments(caseBest){
     for(
       const item
       of state.assignments
@@ -1240,9 +1259,7 @@ async function initAcademy(){
             }
           );
         }catch(error){
-          console.warn(
-            error
-          );
+          console.warn(error);
         }
       }
     }
@@ -1254,9 +1271,7 @@ async function initAcademy(){
       {};
 
     const caseBest =
-      caseBestFrom(
-        reg
-      );
+      caseBestFrom(reg);
 
     const moduleMap =
       moduleProgressMap(
@@ -1388,7 +1403,8 @@ async function initAcademy(){
           ] <
             100 &&
           (
-            index === 0 ||
+            index ===
+              0 ||
             moduleMap[
               MODULES[
                 index -
@@ -1420,188 +1436,150 @@ async function initAcademy(){
       }?case=${nextCase}`;
 
     $("moduleGrid").innerHTML =
-      MODULES
-        .map(
-          (
-            module,
-            index
-          )=>{
-            const pct =
-              moduleMap[
-                module.id
-              ] ||
-              0;
+      MODULES.map(
+        (
+          module,
+          index
+        ) => {
+          const pct =
+            moduleMap[
+              module.id
+            ] ||
+            0;
 
-            const assigned =
-              state.assignments.some(
-                a =>
-                  a.status !==
-                    "completed" &&
-                  a.moduleId ===
-                    module.id
-              );
+          const assigned =
+            state.assignments.some(
+              a =>
+                a.status !==
+                  "completed" &&
+                a.moduleId ===
+                  module.id
+            );
 
-            const unlocked =
-              index === 0 ||
-              moduleMap[
-                MODULES[
-                  index -
-                  1
-                ].id
-              ] >=
-                100 ||
-              assigned;
+          const unlocked =
+            index ===
+              0 ||
+            moduleMap[
+              MODULES[
+                index -
+                1
+              ].id
+            ] >=
+              100 ||
+            assigned;
 
-            const target =
-              targetCaseForModule(
-                module,
-                caseBest
-              );
+          const target =
+            targetCaseForModule(
+              module,
+              caseBest
+            );
 
-            const scores =
-              module.caseIds.map(
-                id =>
-                  Number(
-                    caseBest[
-                      String(
-                        id
-                      )
-                    ] ||
+          const scores =
+            module.caseIds.map(
+              id =>
+                Number(
+                  caseBest[
+                    String(id)
+                  ] ||
+                  0
+                )
+            );
+
+          const average =
+            scores.some(
+              Boolean
+            )
+              ? Math.round(
+                  scores.reduce(
+                    (
+                      a,
+                      b
+                    ) =>
+                      a +
+                      b,
                     0
-                  )
-              );
+                  ) /
+                  scores.filter(
+                    Boolean
+                  ).length
+                )
+              : 0;
 
-            const average =
-              scores.some(
-                Boolean
-              )
-                ? Math.round(
-                    scores.reduce(
-                      (
-                        a,
-                        b
-                      ) =>
-                        a +
-                        b,
-                      0
-                    ) /
-                    scores.filter(
-                      Boolean
-                    ).length
-                  )
-                : 0;
+          return `
+          <article
+            class="module ${unlocked ? "" : "locked"}"
+            data-color="${module.color}"
+          >
 
-            return `
-            <article
-              class="module ${
-                unlocked
-                  ? ""
-                  : "locked"
-              }"
-              data-color="${
-                module.color
-              }"
-            >
+            <div class="module-icon">
+              ${esc(module.icon)}
+            </div>
 
-              <div class="module-icon">
+            <h3>
+              ${esc(module.title)}
+            </h3>
+
+            <p>
+              ${esc(module.subtitle)}
+            </p>
+
+            <div class="module-meta">
+
+              <span>
+                ${module.caseIds.length} casos
+              </span>
+
+              <b>
+                ${pct}%
+              </b>
+
+            </div>
+
+            <div class="progress">
+              <i style="width:${pct}%"></i>
+            </div>
+
+            <div class="module-meta">
+
+              <span>
+                Promedio
+              </span>
+
+              <b>
+                ${average || "—"}
+              </b>
+
+            </div>
+
+            <div class="module-actions">
+
+              <a
+                class="btn small ${unlocked ? "red" : ""}"
                 ${
-                  esc(
-                    module.icon
-                  )
+                  unlocked
+                    ? `href="${
+                        settings.simulatorWrapperUrl ||
+                        "./simulator.html"
+                      }?case=${target}"`
+                    : `aria-disabled="true"`
                 }
-              </div>
+              >
+                ${pct === 100 ? "Repasar" : "Continuar"}
+              </a>
 
-              <h3>
-                ${
-                  esc(
-                    module.title
-                  )
-                }
-              </h3>
+              <button
+                class="btn small"
+                data-module-details="${module.id}"
+              >
+                Ver casos
+              </button>
 
-              <p>
-                ${
-                  esc(
-                    module.subtitle
-                  )
-                }
-              </p>
+            </div>
 
-              <div class="module-meta">
-
-                <span>
-                  ${
-                    module.caseIds.length
-                  } casos
-                </span>
-
-                <b>
-                  ${pct}%
-                </b>
-
-              </div>
-
-              <div class="progress">
-                <i
-                  style="width:${pct}%"
-                ></i>
-              </div>
-
-              <div class="module-meta">
-
-                <span>
-                  Promedio
-                </span>
-
-                <b>
-                  ${
-                    average ||
-                    "—"
-                  }
-                </b>
-
-              </div>
-
-              <div class="module-actions">
-
-                <a
-                  class="btn small ${
-                    unlocked
-                      ? "red"
-                      : ""
-                  }"
-                  ${
-                    unlocked
-                      ? `href="${
-                          settings.simulatorWrapperUrl ||
-                          "./simulator.html"
-                        }?case=${target}"`
-                      : `aria-disabled="true"`
-                  }
-                >
-                  ${
-                    pct === 100
-                      ? "Repasar"
-                      : "Continuar"
-                  }
-                </a>
-
-                <button
-                  class="btn small"
-                  data-module-details="${
-                    module.id
-                  }"
-                >
-                  Ver casos
-                </button>
-
-              </div>
-
-            </article>
-            `;
-          }
-        )
-        .join("");
+          </article>
+          `;
+        }
+      ).join("");
 
     $("assignmentList").innerHTML =
       state.assignments.length
@@ -1627,7 +1605,7 @@ async function initAcademy(){
                 )
             )
             .map(
-              item=>{
+              item => {
                 const complete =
                   item.status ===
                     "completed" ||
@@ -1648,15 +1626,13 @@ async function initAcademy(){
                   href =
                     settings.certificationUrl ||
                     "./certification.html";
-                }
-                else if(
+                }else if(
                   item.type ===
                   "case"
                 ){
                   href +=
                     `?case=${item.caseId}`;
-                }
-                else if(
+                }else if(
                   item.type ===
                   "module"
                 ){
@@ -1677,45 +1653,21 @@ async function initAcademy(){
                   <div class="list-main">
 
                     <b>
-                      ${
-                        esc(
-                          item.title ||
-                          "Entrenamiento asignado"
-                        )
-                      }
+                      ${esc(item.title || "Entrenamiento asignado")}
                     </b>
 
                     <span>
-                      ${
-                        esc(
-                          item.type ||
-                          "training"
-                        )
-                      }
-
+                      ${esc(item.type || "training")}
                       · Vence
-
-                      ${
-                        fmtDay(
-                          item.dueAt
-                        )
-                      }
+                      ${fmtDay(item.dueAt)}
                     </span>
 
                   </div>
 
                   <span
-                    class="badge ${
-                      complete
-                        ? "green"
-                        : "amber"
-                    }"
+                    class="badge ${complete ? "green" : "amber"}"
                   >
-                    ${
-                      complete
-                        ? "Completado"
-                        : "Pendiente"
-                    }
+                    ${complete ? "Completado" : "Pendiente"}
                   </span>
 
                   <a
@@ -1738,104 +1690,46 @@ async function initAcademy(){
 
     $("certStatus").textContent =
       cert
-        ? `${
-            cert.passed
-              ? "Aprobado"
-              : "No aprobado"
-          }: ${cert.score}%`
+        ? `${cert.passed ? "Certificado" : "Último intento"}: ${cert.score}%`
         : "Aún no has realizado la certificación.";
 
     $("certBadge").className =
-      `badge ${
-        cert
-          ? (
-              cert.passed
-                ? "green"
-                : "red"
-            )
-          : "amber"
-      }`;
+      `badge ${cert?.passed ? "green" : "amber"}`;
 
     $("certBadge").textContent =
-      cert
-        ? (
-            cert.passed
-              ? "APROBADO"
-              : "NO APROBADO"
-          )
+      cert?.passed
+        ? "CERTIFICADO"
         : "PENDIENTE";
 
-    $("profileDetails").innerHTML =
-      `
+    $("profileDetails").innerHTML = `
       <div class="list-row">
-
         <div class="list-main">
           <b>Equipo</b>
-
-          <span>
-            ${
-              esc(
-                reg.team ||
-                "Sin asignar"
-              )
-            }
-          </span>
+          <span>${esc(reg.team || "Sin asignar")}</span>
         </div>
-
       </div>
 
       <div class="list-row">
-
         <div class="list-main">
           <b>Rol</b>
-
-          <span>
-            ${
-              esc(
-                reg.role ||
-                settings.defaultRole ||
-                "Account Manager"
-              )
-            }
-          </span>
+          <span>${esc(reg.role || settings.defaultRole || "Account Manager")}</span>
         </div>
-
       </div>
 
       <div class="list-row">
-
         <div class="list-main">
           <b>Idioma</b>
-
-          <span>
-            ${
-              esc(
-                reg.language ||
-                "English"
-              )
-            }
-          </span>
+          <span>${esc(reg.language || "English")}</span>
         </div>
-
       </div>
 
       <div class="list-row">
-
         <div class="list-main">
           <b>Último acceso</b>
-
-          <span>
-            ${
-              fmtDate(
-                reg.lastSeenAt ||
-                reg.lastLoginAt
-              )
-            }
-          </span>
+          <span>${fmtDate(reg.lastSeenAt || reg.lastLoginAt)}</span>
         </div>
-
       </div>
-      `;
+    `;
 
     autoCompleteAssignments(
       caseBest
@@ -1845,22 +1739,17 @@ async function initAcademy(){
   $("moduleGrid")
     .addEventListener(
       "click",
-      event=>{
+      event => {
         const button =
           event.target.closest(
             "[data-module-details]"
           );
 
-        if(
-          !button
-        ){
-          return;
-        }
+        if(!button) return;
 
         const module =
           getModule(
-            button.dataset
-              .moduleDetails
+            button.dataset.moduleDetails
           );
 
         const caseBest =
@@ -1868,78 +1757,58 @@ async function initAcademy(){
             state.reg
           );
 
-        $("moduleModalTitle")
-          .textContent =
-            module.title;
+        $("moduleModalTitle").textContent =
+          module.title;
 
-        $("moduleModalBody")
-          .innerHTML =
-            module.caseIds
-              .map(
-                id=>{
-                  const c =
-                    getCase(id);
+        $("moduleModalBody").innerHTML =
+          module.caseIds.map(
+            id => {
+              const c =
+                getCase(id);
 
-                  const score =
-                    Number(
-                      caseBest[
-                        String(id)
-                      ] ||
-                      0
-                    );
+              const score =
+                Number(
+                  caseBest[
+                    String(id)
+                  ] ||
+                  0
+                );
 
-                  return `
-                  <div class="list-row">
+              return `
+              <div class="list-row">
 
-                    <div class="list-main">
+                <div class="list-main">
 
-                      <b>
-                        Caso ${id}:
-                        ${
-                          esc(
-                            c.es.title
-                          )
-                        }
-                      </b>
+                  <b>
+                    Caso ${id}: ${esc(c.es.title)}
+                  </b>
 
-                      <span>
-                        ${
-                          esc(
-                            c.es.context
-                          )
-                        }
-                      </span>
+                  <span>
+                    ${esc(c.es.context)}
+                  </span>
 
-                    </div>
+                </div>
 
-                    <span
-                      class="badge ${
-                        score >= 80
-                          ? "green"
-                          : ""
-                      }"
-                    >
-                      ${
-                        score ||
-                        0
-                      }%
-                    </span>
+                <span
+                  class="badge ${score >= 80 ? "green" : ""}"
+                >
+                  ${score || 0}%
+                </span>
 
-                    <a
-                      class="btn small"
-                      href="${
-                        settings.simulatorWrapperUrl ||
-                        "./simulator.html"
-                      }?case=${id}"
-                    >
-                      Practicar
-                    </a>
+                <a
+                  class="btn small"
+                  href="${
+                    settings.simulatorWrapperUrl ||
+                    "./simulator.html"
+                  }?case=${id}"
+                >
+                  Practicar
+                </a>
 
-                  </div>
-                  `;
-                }
-              )
-              .join("");
+              </div>
+              `;
+            }
+          ).join("");
 
         $("moduleModal").hidden =
           false;
@@ -1954,7 +1823,7 @@ async function initAcademy(){
   $("moduleModal")
     .addEventListener(
       "click",
-      event=>{
+      event => {
         if(
           event.target ===
           $("moduleModal")
@@ -1966,13 +1835,2022 @@ async function initAcademy(){
     );
 }
 
-async function initAdmin(){
+async function initSimulator(){
+  const {
+    user,
+    reg
+  } =
+    await requireUser();
 
+  startTracking(
+    user,
+    "simulator",
+    reg
+  );
+
+  $("simUser").textContent =
+    reg.fullName ||
+    user.displayName ||
+    user.email ||
+    "Trainee";
+
+  $("backAcademy").onclick =
+    async () => {
+      await syncLocalProgress();
+
+      location.href =
+        settings.academyUrl ||
+        "./academy.html";
+    };
+
+  $("simLogout").onclick =
+    async () => {
+      await syncLocalProgress();
+
+      await window
+        .__academyStopTracking?.();
+
+      await signOut(auth);
+
+      location.replace(
+        settings.loginUrl ||
+        "./index.html"
+      );
+    };
+
+  const params =
+    new URLSearchParams(
+      location.search
+    );
+
+  const targetCase =
+    Number(
+      params.get("case")
+    );
+
+  try{
+    const current =
+      JSON.parse(
+        localStorage.getItem(
+          "dd_v137_quiz_training_v1"
+        ) ||
+        "{}"
+      );
+
+    current.stats =
+      current.stats ||
+      {
+        attempts: 0,
+        passed: 0,
+        totalScore: 0,
+        best: {},
+        history: []
+      };
+
+    current.stats.best =
+      current.stats.best ||
+      {};
+
+    const cloudBest =
+      caseBestFrom(reg);
+
+    for(
+      const [
+        id,
+        score
+      ]
+      of Object.entries(cloudBest)
+    ){
+      current.stats.best[id] =
+        Math.max(
+          Number(
+            current.stats.best[id] ||
+            0
+          ),
+          Number(score || 0)
+        );
+    }
+
+    current.stats.attempts =
+      Math.max(
+        Number(
+          current.stats.attempts ||
+          0
+        ),
+        Number(
+          reg.academyProgress
+            ?.attempts ||
+          0
+        ),
+        Object.keys(
+          cloudBest
+        ).length
+      );
+
+    current.stats.passed =
+      Math.max(
+        Number(
+          current.stats.passed ||
+          0
+        ),
+        Number(
+          reg.academyProgress
+            ?.passed ||
+          0
+        )
+      );
+
+    const restoredTotal =
+      Math.round(
+        Number(
+          reg.academyProgress
+            ?.averageScore ||
+          0
+        ) *
+        current.stats.attempts
+      );
+
+    current.stats.totalScore =
+      Math.max(
+        Number(
+          current.stats.totalScore ||
+          0
+        ),
+        restoredTotal
+      );
+
+    if(
+      targetCase >= 1 &&
+      targetCase <=
+        Number(
+          settings.caseCount ||
+          20
+        )
+    ){
+      Object.assign(
+        current,
+        {
+          caseId:
+            targetCase,
+
+          tab:
+            "case",
+
+          question:
+            0,
+
+          answers:
+            {},
+
+          hint:
+            false,
+
+          completed:
+            false,
+
+          quizStarted:
+            false,
+
+          recorded:
+            false
+        }
+      );
+    }
+
+    localStorage.setItem(
+      "dd_v137_quiz_training_v1",
+      JSON.stringify(current)
+    );
+  }catch(error){
+    console.warn(
+      "Could not restore cloud quiz progress",
+      error
+    );
+  }
+
+  const frame =
+    $("simulatorFrame");
+
+  frame.src =
+    settings.simulatorFile ||
+    "./training-simulator-v14%20(1).html";
+
+  const regRef =
+    doc(
+      db,
+      names.registrations,
+      user.uid
+    );
+
+  let lastSignature = "";
+
+  async function syncLocalProgress(){
+    try{
+      const q =
+        JSON.parse(
+          localStorage.getItem(
+            "dd_v137_quiz_training_v1"
+          ) ||
+          "{}"
+        );
+
+      const stats =
+        q.stats ||
+        {};
+
+      const best =
+        stats.best ||
+        {};
+
+      const caseBest =
+        Object.fromEntries(
+          Object.entries(best)
+            .map(
+              (
+                [
+                  id,
+                  score
+                ]
+              ) => [
+                String(id),
+                Number(score) || 0
+              ]
+            )
+        );
+
+      const completedCaseIds =
+        Object.keys(caseBest)
+          .map(Number)
+          .filter(Number.isFinite);
+
+      const moduleProgress =
+        moduleProgressMap(
+          caseBest
+        );
+
+      const scoreValues =
+        Object.values(caseBest);
+
+      const averageScore =
+        scoreValues.length
+          ? Math.round(
+              scoreValues.reduce(
+                (
+                  a,
+                  b
+                ) =>
+                  a +
+                  b,
+                0
+              ) /
+              scoreValues.length
+            )
+          : 0;
+
+      let competencyScores = {};
+
+      try{
+        const p =
+          frame.contentWindow
+            ?.V8
+            ?.profile ||
+          {};
+
+        competencyScores = {
+          effectiveness:
+            Number(
+              p.effectiveness ||
+              0
+            ),
+
+          efficiency:
+            Number(
+              p.efficiency ||
+              0
+            ),
+
+          empathy:
+            Number(
+              p.empathy ||
+              0
+            )
+        };
+      }catch(error){}
+
+      const academyProgress = {
+        caseBest,
+
+        completedCaseIds,
+
+        moduleProgress,
+
+        averageScore,
+
+        attempts:
+          Number(
+            stats.attempts ||
+            0
+          ),
+
+        passed:
+          Number(
+            stats.passed ||
+            0
+          ),
+
+        lastCaseId:
+          Number(
+            q.caseId ||
+            0
+          ) ||
+          null,
+
+        lastQuestion:
+          Number(
+            q.question ||
+            0
+          ) +
+          1,
+
+        questionCount:
+          10,
+
+        competencyScores,
+
+        updatedAt:
+          nowIso()
+      };
+
+      const signature =
+        JSON.stringify(
+          academyProgress
+        );
+
+      if(
+        signature ===
+        lastSignature
+      ){
+        return;
+      }
+
+      lastSignature =
+        signature;
+
+      await setDoc(
+        regRef,
+        {
+          academyProgress,
+
+          lastSeenAt:
+            serverTimestamp(),
+
+          updatedAt:
+            serverTimestamp()
+        },
+        {
+          merge: true
+        }
+      );
+
+      $("syncDot").className =
+        "sync-dot ok";
+
+      $("syncText").textContent =
+        "Progreso sincronizado";
+    }catch(error){
+      console.warn(
+        "Academy bridge sync failed",
+        error
+      );
+
+      $("syncDot").className =
+        "sync-dot bad";
+
+      $("syncText").textContent =
+        "Error de sincronización";
+    }
+  }
+
+  function customizeEmbeddedSimulator(){
+    try{
+      const frameDoc =
+        frame.contentDocument;
+
+      if(!frameDoc) return;
+
+      let style =
+        frameDoc.getElementById(
+          "academyEmbeddedOverrides"
+        );
+
+      if(!style){
+        style =
+          frameDoc.createElement(
+            "style"
+          );
+
+        style.id =
+          "academyEmbeddedOverrides";
+
+        style.textContent = `
+          #v8TrainingFoot button[onclick*="quizRandomCase"],
+          #v8TrainingFoot button[onclick*="randomCase"],
+          .v137-shell select.v137-select {
+            display:none !important;
+          }
+        `;
+
+        frameDoc.head?.appendChild(
+          style
+        );
+      }
+
+      frameDoc
+        .querySelectorAll(
+          "select.v137-select"
+        )
+        .forEach(
+          select => {
+            const section =
+              select.closest(
+                "section"
+              );
+
+            if(section){
+              section.style.display =
+                "none";
+            }else{
+              select.style.display =
+                "none";
+            }
+          }
+        );
+
+      frameDoc
+        .querySelectorAll(
+          "button"
+        )
+        .forEach(
+          button => {
+            const label =
+              String(
+                button.textContent ||
+                ""
+              )
+                .trim()
+                .toLowerCase();
+
+            const action =
+              String(
+                button.getAttribute(
+                  "onclick"
+                ) ||
+                ""
+              ).toLowerCase();
+
+            if(
+              action.includes(
+                "quizrandomcase"
+              ) ||
+              [
+                "otro caso",
+                "another case",
+                "caso aleatorio",
+                "random case",
+                "nueva misión",
+                "new mission"
+              ].includes(label)
+            ){
+              button.style.display =
+                "none";
+
+              button.setAttribute(
+                "aria-hidden",
+                "true"
+              );
+
+              button.tabIndex = -1;
+            }
+          }
+        );
+    }catch(error){
+      console.warn(
+        "Could not customize embedded simulator",
+        error
+      );
+    }
+  }
+
+  frame.addEventListener(
+    "load",
+    () => {
+      setTimeout(
+        () => {
+          customizeEmbeddedSimulator();
+          syncLocalProgress();
+        },
+        900
+      );
+
+      setTimeout(
+        customizeEmbeddedSimulator,
+        2200
+      );
+    }
+  );
+
+  const timer =
+    setInterval(
+      syncLocalProgress,
+      2500
+    );
+
+  window.addEventListener(
+    "pagehide",
+    () => {
+      clearInterval(timer);
+      syncLocalProgress();
+    }
+  );
+}
+
+function seededShuffle(
+  items,
+  seed
+){
+  const copy =
+    [...items];
+
+  let x =
+    Math.abs(
+      Number(seed) ||
+      1
+    ) +
+    17;
+
+  for(
+    let i =
+      copy.length -
+      1;
+    i >
+    0;
+    i--
+  ){
+    x =
+      (
+        x *
+        9301 +
+        49297
+      ) %
+      233280;
+
+    const j =
+      Math.floor(
+        x /
+        233280 *
+        (
+          i +
+          1
+        )
+      );
+
+    [
+      copy[i],
+      copy[j]
+    ] = [
+      copy[j],
+      copy[i]
+    ];
+  }
+
+  return copy;
+}
+
+async function initCertification(){
+  const {
+    user,
+    reg
+  } =
+    await requireUser();
+
+  startTracking(
+    user,
+    "certification",
+    reg
+  );
+
+  $("certUser").textContent =
+    reg.fullName ||
+    user.displayName ||
+    user.email ||
+    "Trainee";
+
+  $("certBack").href =
+    settings.academyUrl ||
+    "./academy.html";
+
+  const passPercent =
+    Math.max(
+      1,
+      Math.min(
+        100,
+        Number(
+          settings.certificationPassPercent ||
+          80
+        )
+      )
+    );
+
+  const stateKey =
+    `dd_certification_v151_${user.uid}`;
+
+  const resultKey =
+    `dd_certification_result_v151_${user.uid}`;
+
+  const draftRef =
+    doc(
+      db,
+      names.drafts,
+      user.uid
+    );
+
+  const bank =
+    buildCertificationBank(
+      "es"
+    );
+
+  let exam = null;
+  let timer = null;
+  let lastResult = null;
+  let submitting = false;
+
+  try{
+    exam =
+      JSON.parse(
+        sessionStorage.getItem(
+          stateKey
+        ) ||
+        "null"
+      );
+  }catch(error){}
+
+  try{
+    lastResult =
+      JSON.parse(
+        localStorage.getItem(
+          resultKey
+        ) ||
+        "null"
+      );
+  }catch(error){}
+
+  if(!exam){
+    try{
+      const draft =
+        await getDoc(
+          draftRef
+        );
+
+      if(draft.exists()){
+        exam =
+          draft.data().exam ||
+          null;
+      }
+    }catch(error){
+      console.warn(
+        "Could not restore certification draft",
+        error
+      );
+    }
+  }
+
+  function showSection(name){
+    $("certIntro").hidden =
+      name !==
+      "intro";
+
+    $("certExam").hidden =
+      name !==
+      "exam";
+
+    $("certSubmitting").hidden =
+      name !==
+      "submitting";
+
+    $("certResult").hidden =
+      name !==
+      "result";
+  }
+
+  function saveExam(){
+    if(exam){
+      sessionStorage.setItem(
+        stateKey,
+        JSON.stringify(exam)
+      );
+
+      setDoc(
+        draftRef,
+        {
+          userId:
+            user.uid,
+
+          teamId:
+            reg.teamId ||
+            "",
+
+          exam,
+
+          updatedAt:
+            serverTimestamp()
+        },
+        {
+          merge: true
+        }
+      ).catch(
+        error =>
+          console.warn(
+            "Certification draft sync failed",
+            error
+          )
+      );
+    }else{
+      sessionStorage.removeItem(
+        stateKey
+      );
+
+      deleteDoc(
+        draftRef
+      ).catch(
+        () => {}
+      );
+    }
+  }
+
+  function certificateCode(attemptId){
+    const stamp =
+      dateKey()
+        .replaceAll(
+          "-",
+          ""
+        );
+
+    const uidPart =
+      String(
+        user.uid ||
+        "USER"
+      )
+        .slice(0, 6)
+        .toUpperCase();
+
+    const attemptPart =
+      String(
+        attemptId ||
+        Date.now()
+      )
+        .split("_")
+        .pop()
+        .slice(-6)
+        .toUpperCase();
+
+    return `DDTA-${stamp}-${uidPart}-${attemptPart}`;
+  }
+
+  function startExam(){
+    clearInterval(timer);
+
+    const count =
+      Math.min(
+        bank.length,
+        Math.max(
+          10,
+          Number(
+            settings.certificationQuestionCount ||
+            40
+          )
+        )
+      );
+
+    const attemptId =
+      `${user.uid}_${Date.now()}`;
+
+    const seed =
+      Date.now() %
+      233280;
+
+    const selected =
+      seededShuffle(
+        bank,
+        seed
+      )
+        .slice(
+          0,
+          count
+        )
+        .map(
+          q =>
+            q.id
+        );
+
+    exam = {
+      attemptId,
+
+      seed,
+
+      questionIds:
+        selected,
+
+      index:
+        0,
+
+      answers:
+        {},
+
+      startedAt:
+        Date.now(),
+
+      endAt:
+        Date.now() +
+        Number(
+          settings.certificationMinutes ||
+          60
+        ) *
+        60000,
+
+      complete:
+        false
+    };
+
+    lastResult = null;
+
+    localStorage.removeItem(
+      resultKey
+    );
+
+    setMessage(
+      $("certMessage")
+    );
+
+    saveExam();
+    renderExam();
+  }
+
+  function questions(){
+    return (
+      exam
+        ?.questionIds
+        ?.map(
+          id =>
+            bank.find(
+              q =>
+                q.id ===
+                id
+            )
+        )
+        .filter(Boolean) ||
+      []
+    );
+  }
+
+  function timeLeft(){
+    return Math.max(
+      0,
+      Math.floor(
+        (
+          (
+            exam?.endAt ||
+            0
+          ) -
+          Date.now()
+        ) /
+        1000
+      )
+    );
+  }
+
+  function updateTimer(){
+    if(
+      !exam ||
+      exam.complete ||
+      submitting
+    ){
+      return;
+    }
+
+    const seconds =
+      timeLeft();
+
+    const minutes =
+      Math.floor(
+        seconds /
+        60
+      );
+
+    const remaining =
+      seconds %
+      60;
+
+    $("certTimer").textContent =
+      `${String(minutes).padStart(2, "0")}:${String(remaining).padStart(2, "0")}`;
+
+    if(seconds <= 0){
+      finishExam(true);
+    }
+  }
+
+  function renderIntro(){
+    showSection("intro");
+
+    $("certCount").textContent =
+      String(
+        Math.min(
+          bank.length,
+          Math.max(
+            10,
+            Number(
+              settings.certificationQuestionCount ||
+              40
+            )
+          )
+        )
+      );
+
+    $("certPass").textContent =
+      `${passPercent}%`;
+
+    $("certMinutes").textContent =
+      `${settings.certificationMinutes || 60} min`;
+  }
+
+  function renderExam(){
+    if(!exam){
+      renderIntro();
+      return;
+    }
+
+    showSection("exam");
+
+    const qs =
+      questions();
+
+    const q =
+      qs[
+        exam.index
+      ];
+
+    if(!q){
+      finishExam();
+      return;
+    }
+
+    $("questionCount").textContent =
+      `Pregunta ${exam.index + 1} de ${qs.length}`;
+
+    $("questionSkill").textContent =
+      `${q.moduleTitle} · ${q.skill}`;
+
+    $("questionContext").textContent =
+      q.context;
+
+    $("questionText").textContent =
+      q.question;
+
+    $("questionOptions").innerHTML =
+      q.options.map(
+        (
+          option,
+          index
+        ) => {
+          const selected =
+            exam.answers[
+              q.id
+            ] ===
+            option.id;
+
+          return `
+          <button
+            type="button"
+            class="cert-option ${selected ? "selected" : ""}"
+            data-answer="${option.id}"
+            role="radio"
+            aria-checked="${selected}"
+          >
+
+            <span class="cert-option-letter">
+              ${String.fromCharCode(65 + index)}
+            </span>
+
+            <span class="cert-option-copy">
+              ${esc(option.text)}
+            </span>
+
+            <span class="cert-option-check">
+              ✓
+            </span>
+
+          </button>
+          `;
+        }
+      ).join("");
+
+    $("certProgress").style.width =
+      `${
+        (
+          exam.index +
+          1
+        ) /
+        qs.length *
+        100
+      }%`;
+
+    $("prevQuestion").disabled =
+      exam.index ===
+      0;
+
+    $("nextQuestion").textContent =
+      exam.index ===
+      qs.length -
+      1
+        ? "Enviar certificación"
+        : "Siguiente";
+
+    $("nextQuestion").disabled =
+      !exam.answers[
+        q.id
+      ] ||
+      submitting;
+
+    updateTimer();
+
+    clearInterval(timer);
+
+    timer =
+      setInterval(
+        updateTimer,
+        1000
+      );
+  }
+
+  async function completeCertificationAssignments(){
+    try{
+      const snap =
+        await getDocs(
+          query(
+            collection(
+              db,
+              names.assignments
+            ),
+            where(
+              "userId",
+              "==",
+              user.uid
+            )
+          )
+        );
+
+      const updates =
+        snap.docs
+          .filter(
+            item => {
+              const data =
+                item.data();
+
+              return (
+                data.type ===
+                  "certification" &&
+                data.status !==
+                  "completed"
+              );
+            }
+          )
+          .map(
+            item =>
+              updateDoc(
+                item.ref,
+                {
+                  status:
+                    "completed",
+
+                  completedAt:
+                    serverTimestamp(),
+
+                  updatedAt:
+                    serverTimestamp()
+                }
+              )
+          );
+
+      await Promise.allSettled(
+        updates
+      );
+    }catch(error){
+      console.warn(
+        "Could not complete certification assignments",
+        error
+      );
+    }
+  }
+
+  function resultDateText(value){
+    const date =
+      new Date(
+        value ||
+        Date.now()
+      );
+
+    return new Intl.DateTimeFormat(
+      "es",
+      {
+        dateStyle:
+          "medium",
+
+        timeStyle:
+          "short"
+      }
+    ).format(date);
+  }
+
+  function renderResult(result){
+    lastResult =
+      result;
+
+    showSection("result");
+
+    $("resultScore").textContent =
+      `${result.score}%`;
+
+    $("resultTitle").textContent =
+      result.passed
+        ? "Certificación aprobada"
+        : "Certificación no aprobada";
+
+    $("resultText").textContent =
+      result.passed
+        ? `Obtuviste ${result.correct} respuestas correctas de ${result.total}. Superaste la nota mínima de ${result.passPercent}% y tu resultado quedó registrado.`
+        : `Obtuviste ${result.correct} respuestas correctas de ${result.total}. La nota mínima es ${result.passPercent}%. Tu intento quedó registrado y puedes volver a intentarlo.`;
+
+    $("resultBadge").className =
+      `cert-status ${result.passed ? "approved" : "not-approved"}`;
+
+    $("resultBadge").textContent =
+      result.passed
+        ? "APPROVED"
+        : "NOT APPROVED";
+
+    $("resultCorrect").textContent =
+      String(
+        result.correct
+      );
+
+    $("resultTotal").textContent =
+      String(
+        result.total
+      );
+
+    $("resultPassMark").textContent =
+      `${result.passPercent}%`;
+
+    $("resultDate").textContent =
+      resultDateText(
+        result.completedAtClient
+      );
+
+    $("resultCertificateId").textContent =
+      result.certificateId;
+
+    $("downloadCertificate").disabled =
+      false;
+  }
+
+  function pdfSafeText(value){
+    return String(value ?? "")
+      .normalize("NFD")
+      .replace(
+        /[\u0300-\u036f]/g,
+        ""
+      )
+      .replace(
+        /[^\x20-\x7E]/g,
+        " "
+      );
+  }
+
+  function pdfEscape(value){
+    return pdfSafeText(value)
+      .replace(
+        /\\/g,
+        "\\\\"
+      )
+      .replace(
+        /\(/g,
+        "\\("
+      )
+      .replace(
+        /\)/g,
+        "\\)"
+      );
+  }
+
+  function buildCertificatePdf(result){
+    const status =
+      result.passed
+        ? "APPROVED"
+        : "NOT APPROVED";
+
+    const statusColor =
+      result.passed
+        ? "0.09 0.52 0.23"
+        : "0.70 0.10 0.08";
+
+    const userName =
+      pdfSafeText(
+        result.userName ||
+        "Trainee"
+      );
+
+    const completedDate =
+      new Intl.DateTimeFormat(
+        "en",
+        {
+          dateStyle:
+            "long"
+        }
+      ).format(
+        new Date(
+          result.completedAtClient
+        )
+      );
+
+    const commands = [];
+
+    const text = (
+      font,
+      size,
+      x,
+      y,
+      value,
+      color = "0.10 0.10 0.10"
+    ) => {
+      commands.push(
+        `${color} rg BT /${font} ${size} Tf ${x} ${y} Td (${pdfEscape(value)}) Tj ET`
+      );
+    };
+
+    commands.push(
+      "0.97 0.97 0.98 rg 0 0 595 842 re f"
+    );
+
+    commands.push(
+      "0.92 0.09 0.00 rg 0 742 595 100 re f"
+    );
+
+    commands.push(
+      "1 1 1 RG 2 w 32 42 531 758 re S"
+    );
+
+    text(
+      "F2",
+      18,
+      44,
+      790,
+      "DOORDASH TRAINING ACADEMY",
+      "1 1 1"
+    );
+
+    text(
+      "F1",
+      10,
+      44,
+      772,
+      "FINAL CERTIFICATION RESULT",
+      "1 1 1"
+    );
+
+    text(
+      "F2",
+      34,
+      44,
+      680,
+      status,
+      statusColor
+    );
+
+    text(
+      "F1",
+      12,
+      44,
+      646,
+      result.passed
+        ? "This participant met the passing requirement."
+        : "This participant did not meet the passing requirement."
+    );
+
+    text(
+      "F1",
+      11,
+      44,
+      606,
+      "Participant"
+    );
+
+    text(
+      "F2",
+      24,
+      44,
+      578,
+      userName
+    );
+
+    commands.push(
+      "0.84 0.86 0.88 RG 1 w 44 548 m 551 548 l S"
+    );
+
+    text(
+      "F1",
+      10,
+      44,
+      518,
+      "SCORE"
+    );
+
+    text(
+      "F2",
+      28,
+      44,
+      486,
+      `${result.score}%`
+    );
+
+    text(
+      "F1",
+      10,
+      185,
+      518,
+      "PASS MARK"
+    );
+
+    text(
+      "F2",
+      28,
+      185,
+      486,
+      `${result.passPercent}%`
+    );
+
+    text(
+      "F1",
+      10,
+      325,
+      518,
+      "CORRECT ANSWERS"
+    );
+
+    text(
+      "F2",
+      28,
+      325,
+      486,
+      `${result.correct} / ${result.total}`
+    );
+
+    text(
+      "F1",
+      10,
+      44,
+      432,
+      "DATE"
+    );
+
+    text(
+      "F2",
+      14,
+      44,
+      410,
+      completedDate
+    );
+
+    text(
+      "F1",
+      10,
+      44,
+      370,
+      "CERTIFICATION ID"
+    );
+
+    text(
+      "F2",
+      13,
+      44,
+      348,
+      result.certificateId
+    );
+
+    commands.push(
+      `${statusColor} rg 44 270 507 46 re f`
+    );
+
+    text(
+      "F2",
+      14,
+      58,
+      288,
+      result.passed
+        ? "CERTIFICATION STATUS: APPROVED"
+        : "CERTIFICATION STATUS: NOT APPROVED",
+      "1 1 1"
+    );
+
+    text(
+      "F1",
+      9,
+      44,
+      224,
+      "This PDF records the result of this assessment attempt."
+    );
+
+    text(
+      "F1",
+      9,
+      44,
+      208,
+      result.passed
+        ? "The participant achieved the required score for this training certification."
+        : "A new attempt may be completed to achieve the required score."
+    );
+
+    text(
+      "F1",
+      8,
+      44,
+      92,
+      "Generated by DoorDash AM Training Academy"
+    );
+
+    text(
+      "F1",
+      8,
+      44,
+      78,
+      `Attempt ID: ${result.attemptId}`
+    );
+
+    const stream =
+      commands.join("\n");
+
+    const objects = [];
+
+    objects[1] =
+      "<< /Type /Catalog /Pages 2 0 R >>";
+
+    objects[2] =
+      "<< /Type /Pages /Kids [3 0 R] /Count 1 >>";
+
+    objects[3] =
+      "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>";
+
+    objects[4] =
+      "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>";
+
+    objects[5] =
+      "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>";
+
+    objects[6] =
+      `<< /Length ${stream.length} >>
+stream
+${stream}
+endstream`;
+
+    let pdf =
+      "%PDF-1.4\n%0000\n";
+
+    const offsets = [0];
+
+    for(
+      let index = 1;
+      index <= 6;
+      index++
+    ){
+      offsets[index] =
+        pdf.length;
+
+      pdf +=
+        `${index} 0 obj\n${objects[index]}\nendobj\n`;
+    }
+
+    const xrefOffset =
+      pdf.length;
+
+    pdf +=
+      "xref\n0 7\n0000000000 65535 f \n";
+
+    for(
+      let index = 1;
+      index <= 6;
+      index++
+    ){
+      pdf +=
+        `${String(offsets[index]).padStart(10, "0")} 00000 n \n`;
+    }
+
+    pdf +=
+      `trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+${xrefOffset}
+%%EOF`;
+
+    return new Blob(
+      [pdf],
+      {
+        type:
+          "application/pdf"
+      }
+    );
+  }
+
+  function downloadCertificatePdf(){
+    if(!lastResult) return;
+
+    const blob =
+      buildCertificatePdf(
+        lastResult
+      );
+
+    const url =
+      URL.createObjectURL(
+        blob
+      );
+
+    const link =
+      document.createElement(
+        "a"
+      );
+
+    const safeName =
+      pdfSafeText(
+        lastResult.userName ||
+        "Trainee"
+      )
+        .replace(
+          /[^A-Za-z0-9]+/g,
+          "_"
+        )
+        .replace(
+          /^_|_$/g,
+          ""
+        ) ||
+      "Trainee";
+
+    link.href =
+      url;
+
+    link.download =
+      `DoorDash_Training_Certification_${safeName}_${lastResult.passed ? "APPROVED" : "NOT_APPROVED"}.pdf`;
+
+    document.body.appendChild(
+      link
+    );
+
+    link.click();
+    link.remove();
+
+    setTimeout(
+      () =>
+        URL.revokeObjectURL(
+          url
+        ),
+      1200
+    );
+
+    toast(
+      "PDF descargado"
+    );
+  }
+
+  async function finishExam(auto = false){
+    if(
+      !exam ||
+      exam.complete ||
+      submitting
+    ){
+      return;
+    }
+
+    submitting = true;
+    exam.complete = true;
+
+    clearInterval(timer);
+
+    const currentExam = {
+      ...exam,
+      answers: {
+        ...exam.answers
+      }
+    };
+
+    const qs =
+      questions();
+
+    let correct = 0;
+
+    const answers =
+      qs.map(
+        q => {
+          const selected =
+            currentExam.answers[
+              q.id
+            ] ||
+            null;
+
+          const ok =
+            selected ===
+            q.answer;
+
+          if(ok){
+            correct++;
+          }
+
+          return {
+            questionId:
+              q.id,
+
+            caseId:
+              q.caseId,
+
+            moduleId:
+              q.moduleId,
+
+            skill:
+              q.skill,
+
+            selected,
+
+            correct:
+              ok
+          };
+        }
+      );
+
+    const score =
+      qs.length
+        ? Math.round(
+            correct /
+            qs.length *
+            100
+          )
+        : 0;
+
+    const passed =
+      score >=
+      passPercent;
+
+    const completedAtClient =
+      new Date().toISOString();
+
+    const certificateId =
+      certificateCode(
+        currentExam.attemptId
+      );
+
+    const result = {
+      attemptId:
+        currentExam.attemptId,
+
+      certificateId,
+
+      userId:
+        user.uid,
+
+      userName:
+        reg.fullName ||
+        user.displayName ||
+        user.email ||
+        "Trainee",
+
+      email:
+        user.email ||
+        reg.email ||
+        "",
+
+      teamId:
+        reg.teamId ||
+        "",
+
+      team:
+        reg.team ||
+        "",
+
+      score,
+
+      passed,
+
+      status:
+        passed
+          ? "APPROVED"
+          : "NOT APPROVED",
+
+      passPercent,
+
+      correct,
+
+      total:
+        qs.length,
+
+      answers,
+
+      startedAt:
+        new Date(
+          currentExam.startedAt
+        ).toISOString(),
+
+      completedAtClient,
+
+      durationSeconds:
+        Math.max(
+          0,
+          Math.round(
+            (
+              Date.now() -
+              currentExam.startedAt
+            ) /
+            1000
+          )
+        ),
+
+      autoSubmitted:
+        !!auto,
+
+      version:
+        "15.1"
+    };
+
+    showSection(
+      "submitting"
+    );
+
+    setMessage(
+      $("certMessage")
+    );
+
+    try{
+      await setDoc(
+        doc(
+          db,
+          names.attempts,
+          currentExam.attemptId
+        ),
+        {
+          ...result,
+
+          completedAt:
+            serverTimestamp()
+        }
+      );
+
+      await setDoc(
+        doc(
+          db,
+          names.registrations,
+          user.uid
+        ),
+        {
+          certification: {
+            score,
+
+            passed,
+
+            status:
+              result.status,
+
+            passPercent,
+
+            certificateId,
+
+            attemptId:
+              currentExam.attemptId,
+
+            completedAt:
+              serverTimestamp()
+          },
+
+          lastSeenAt:
+            serverTimestamp(),
+
+          updatedAt:
+            serverTimestamp()
+        },
+        {
+          merge: true
+        }
+      );
+
+      await completeCertificationAssignments();
+
+      lastResult =
+        result;
+
+      localStorage.setItem(
+        resultKey,
+        JSON.stringify(
+          result
+        )
+      );
+
+      exam = null;
+
+      saveExam();
+
+      submitting = false;
+
+      renderResult(
+        result
+      );
+
+      toast(
+        "Certificación guardada correctamente"
+      );
+    }catch(error){
+      submitting = false;
+
+      exam = {
+        ...currentExam,
+        complete:
+          false
+      };
+
+      saveExam();
+      renderExam();
+
+      setMessage(
+        $("certMessage"),
+        `${errorText(error)} Tu intento sigue guardado; vuelve a presionar Enviar certificación.`,
+        "error"
+      );
+    }
+  }
+
+  $("startCertification").onclick =
+    startExam;
+
+  $("questionOptions")
+    .addEventListener(
+      "click",
+      event => {
+        const button =
+          event.target.closest(
+            "[data-answer]"
+          );
+
+        if(
+          !button ||
+          !exam ||
+          submitting
+        ){
+          return;
+        }
+
+        const q =
+          questions()[
+            exam.index
+          ];
+
+        exam.answers[
+          q.id
+        ] =
+          button.dataset.answer;
+
+        saveExam();
+        renderExam();
+      }
+    );
+
+  $("prevQuestion").onclick =
+    () => {
+      if(
+        !exam ||
+        submitting
+      ){
+        return;
+      }
+
+      exam.index =
+        Math.max(
+          0,
+          exam.index -
+          1
+        );
+
+      saveExam();
+      renderExam();
+    };
+
+  $("nextQuestion").onclick =
+    () => {
+      if(
+        !exam ||
+        submitting
+      ){
+        return;
+      }
+
+      const qs =
+        questions();
+
+      if(
+        exam.index >=
+        qs.length -
+        1
+      ){
+        finishExam(false);
+      }else{
+        exam.index++;
+
+        saveExam();
+        renderExam();
+      }
+    };
+
+  $("retryCertification").onclick =
+    startExam;
+
+  $("downloadCertificate").onclick =
+    downloadCertificatePdf;
+
+  if(
+    exam &&
+    !exam.complete
+  ){
+    if(
+      exam.endAt >
+      Date.now()
+    ){
+      renderExam();
+    }else{
+      renderExam();
+      finishExam(true);
+    }
+  }else if(lastResult){
+    exam = null;
+
+    saveExam();
+
+    renderResult(
+      lastResult
+    );
+  }else{
+    exam = null;
+
+    saveExam();
+    renderIntro();
+  }
+}
+
+async function deleteQueryDocs(q){
+  const snap =
+    await getDocs(q);
+
+  let batch =
+    writeBatch(db);
+
+  let count = 0;
+
+  for(
+    const item
+    of snap.docs
+  ){
+    batch.delete(
+      item.ref
+    );
+
+    count++;
+
+    if(
+      count %
+      400 ===
+      0
+    ){
+      await batch.commit();
+
+      batch =
+        writeBatch(db);
+    }
+  }
+
+  if(
+    count %
+    400
+  ){
+    await batch.commit();
+  }
+
+  return count;
+}
+
+async function initAdmin(){
   const user =
     await authReady();
 
   if(!user){
-
     $("adminLogin").hidden =
       false;
 
@@ -1980,10 +3858,8 @@ async function initAdmin(){
       true;
 
     $("adminGoogle").onclick =
-      async()=>{
-
+      async () => {
         try{
-
           const provider =
             new GoogleAuthProvider();
 
@@ -1998,9 +3874,7 @@ async function initAdmin(){
           );
 
           location.reload();
-
         }catch(error){
-
           setMessage(
             $("adminLoginMessage"),
             errorText(error),
@@ -2013,12 +3887,9 @@ async function initAdmin(){
   }
 
   const admin =
-    await adminRecord(
-      user
-    );
+    await adminRecord(user);
 
   if(!admin){
-
     $("adminLogin").hidden =
       true;
 
@@ -2032,10 +3903,8 @@ async function initAdmin(){
       user.uid;
 
     $("deniedLogout").onclick =
-      async()=>{
-        await signOut(
-          auth
-        );
+      async () => {
+        await signOut(auth);
 
         location.reload();
       };
@@ -2066,10 +3935,8 @@ async function initAdmin(){
     "admin";
 
   $("adminLogout").onclick =
-    async()=>{
-      await signOut(
-        auth
-      );
+    async () => {
+      await signOut(auth);
 
       location.reload();
     };
@@ -2089,13 +3956,10 @@ async function initAdmin(){
     Array.isArray(
       admin.teamIds
     )
-      ? admin.teamIds.filter(
-          Boolean
-        )
+      ? admin.teamIds.filter(Boolean)
       : [];
 
   const state = {
-
     users:
       new Map(),
 
@@ -2135,7 +3999,6 @@ async function initAdmin(){
     target,
     teamField = "teamId"
   ){
-
     let ref =
       collection(
         db,
@@ -2143,11 +4006,7 @@ async function initAdmin(){
       );
 
     if(!superAdmin){
-
-      if(
-        !managerTeams.length
-      ){
-
+      if(!managerTeams.length){
         target.clear();
 
         renderAdmin();
@@ -2160,13 +4019,11 @@ async function initAdmin(){
           ref,
           managerTeams.length ===
             1
-
             ? where(
                 teamField,
                 "==",
                 managerTeams[0]
               )
-
             : where(
                 teamField,
                 "in",
@@ -2181,9 +4038,7 @@ async function initAdmin(){
     const unsub =
       onSnapshot(
         ref,
-
-        snap=>{
-
+        snap => {
           target.clear();
 
           snap.forEach(
@@ -2200,7 +4055,6 @@ async function initAdmin(){
 
           renderAdmin();
         },
-
         error =>
           toast(
             errorText(error)
@@ -2251,30 +4105,24 @@ async function initAdmin(){
     superAdmin ||
     managerTeams.length
   ){
-
     const teamRef =
       superAdmin
-
         ? collection(
             db,
             names.teams
           )
-
         : query(
             collection(
               db,
               names.teams
             ),
-
             managerTeams.length ===
               1
-
               ? where(
                   "id",
                   "==",
                   managerTeams[0]
                 )
-
               : where(
                   "id",
                   "in",
@@ -2288,9 +4136,7 @@ async function initAdmin(){
     state.unsubs.push(
       onSnapshot(
         teamRef,
-
-        snap=>{
-
+        snap => {
           state.teams.clear();
 
           snap.forEach(
@@ -2321,13 +4167,11 @@ async function initAdmin(){
     );
 
   function mergedUsers(){
-
     return [
       ...state.users.values()
     ]
       .map(
-        reg=>{
-
+        reg => {
           const uid =
             reg.uid ||
             reg.id;
@@ -2419,7 +4263,10 @@ async function initAdmin(){
         }
       )
       .sort(
-        (a,b)=>
+        (
+          a,
+          b
+        ) =>
           (
             b.online -
             a.online
@@ -2442,7 +4289,6 @@ async function initAdmin(){
   }
 
   function currentList(){
-
     const q =
       String(
         $("adminSearch")
@@ -2462,8 +4308,7 @@ async function initAdmin(){
 
     return mergedUsers()
       .filter(
-        u=>{
-
+        u => {
           const hay =
             `${u.fullName || ""} ${u.email || ""} ${u.employeeId || ""} ${u.team || ""} ${u.uid}`
               .toLowerCase();
@@ -2495,7 +4340,6 @@ async function initAdmin(){
   }
 
   function renderAdmin(){
-
     const users =
       mergedUsers();
 
@@ -2534,10 +4378,9 @@ async function initAdmin(){
           )
         : 0;
 
-    const certs =
-      [
-        ...state.attempts.values()
-      ];
+    const certs = [
+      ...state.attempts.values()
+    ];
 
     const passRate =
       certs.length
@@ -2567,35 +4410,28 @@ async function initAdmin(){
         0
       );
 
-    $("aRegistered")
-      .textContent =
-        users.length;
+    $("aRegistered").textContent =
+      users.length;
 
-    $("aOnline")
-      .textContent =
-        online.length;
+    $("aOnline").textContent =
+      online.length;
 
-    $("aProgress")
-      .textContent =
-        `${avg}%`;
+    $("aProgress").textContent =
+      `${avg}%`;
 
-    $("aCertRate")
-      .textContent =
-        `${passRate}%`;
+    $("aCertRate").textContent =
+      `${passRate}%`;
 
-    $("aTime")
-      .textContent =
-        fmtDuration(
-          totalSeconds
-        );
+    $("aTime").textContent =
+      fmtDuration(
+        totalSeconds
+      );
 
     const teamSelects = [
       $("adminTeamFilter"),
       $("editTeam"),
       $("managerTeams")
-    ].filter(
-      Boolean
-    );
+    ].filter(Boolean);
 
     const teams =
       [
@@ -2617,8 +4453,7 @@ async function initAdmin(){
       );
 
     teamSelects.forEach(
-      select=>{
-
+      select => {
         const current =
           select.value;
 
@@ -2628,8 +4463,7 @@ async function initAdmin(){
         const selectedBefore =
           multiple
             ? [
-                ...select
-                  .selectedOptions
+                ...select.selectedOptions
               ].map(
                 o =>
                   o.value
@@ -2642,17 +4476,12 @@ async function initAdmin(){
               ? ""
               : '<option value="all">Todos / Sin asignar</option>'
           ) +
-          teams
-            .map(
-              t =>
-                `<option value="${esc(t.id)}">${esc(t.name || t.id)}</option>`
-            )
-            .join("");
+          teams.map(
+            t =>
+              `<option value="${esc(t.id)}">${esc(t.name || t.id)}</option>`
+          ).join("");
 
-        if(
-          multiple
-        ){
-
+        if(multiple){
           [
             ...select.options
           ].forEach(
@@ -2662,7 +4491,6 @@ async function initAdmin(){
                   o.value
                 )
           );
-
         }else if(
           [
             ...select.options
@@ -2672,417 +4500,311 @@ async function initAdmin(){
               current
           )
         ){
-
           select.value =
             current;
         }
       }
     );
 
-    $("adminUserCount")
-      .textContent =
-        `${list.length} usuarios`;
+    $("adminUserCount").textContent =
+      `${list.length} usuarios`;
 
     const userRowsHtml =
-      list
-        .map(
-          u=>{
+      list.map(
+        u => {
+          const progress =
+            Math.max(
+              clamp(
+                u.progress
+                  ?.progress
+              ),
+              Math.round(
+                Object.keys(
+                  u.caseBest
+                ).length /
+                20 *
+                100
+              )
+            );
 
-            const progress =
-              Math.max(
-                clamp(
-                  u.progress
-                    ?.progress
-                ),
-                Math.round(
+          const score =
+            Object.keys(
+              u.caseBest
+            ).length
+              ? Math.round(
+                  Object.values(
+                    u.caseBest
+                  ).reduce(
+                    (
+                      a,
+                      b
+                    ) =>
+                      a +
+                      b,
+                    0
+                  ) /
                   Object.keys(
                     u.caseBest
-                  ).length /
-                  20 *
-                  100
+                  ).length
                 )
-              );
+              : clamp(
+                  u.progress
+                    ?.score
+                );
 
-            const score =
-              Object.keys(
-                u.caseBest
-              ).length
+          const cert =
+            latestAttempt(
+              u.certAttempts
+            );
 
-                ? Math.round(
-                    Object.values(
-                      u.caseBest
-                    ).reduce(
-                      (
-                        a,
-                        b
-                      ) =>
-                        a +
-                        b,
-                      0
-                    ) /
-                    Object.keys(
-                      u.caseBest
-                    ).length
-                  )
+          return `
+          <tr>
 
-                : clamp(
-                    u.progress
-                      ?.score
-                  );
+            <td>
 
-            const cert =
-              latestAttempt(
-                u.certAttempts
-              );
+              <div class="person">
 
-            return `
-            <tr>
+                <div class="avatar">
+                  ${initials(u.fullName, u.email)}
+                </div>
 
-              <td>
+                <div>
 
-                <div class="person">
+                  <b>
+                    ${esc(u.fullName || "Sin nombre")}
+                  </b>
 
-                  <div class="avatar">
-                    ${
-                      initials(
-                        u.fullName,
-                        u.email
-                      )
-                    }
-                  </div>
-
-                  <div>
-
-                    <b>
-                      ${
-                        esc(
-                          u.fullName ||
-                          "Sin nombre"
-                        )
-                      }
-                    </b>
-
-                    <span>
-                      ${
-                        esc(
-                          u.email ||
-                          u.uid
-                        )
-                      }
-                    </span>
-
-                  </div>
+                  <span>
+                    ${esc(u.email || u.uid)}
+                  </span>
 
                 </div>
 
+              </div>
+
+            </td>
+
+            <td>
+              ${esc(u.team || "Sin equipo")}
+            </td>
+
+            <td>
+
+              <span
+                class="presence ${u.online ? "online" : ""}"
+              >
+
+                <i></i>
+
+                ${u.online ? "En línea" : "Offline"}
+
+              </span>
+
+            </td>
+
+            <td>
+              ${progress}%
+            </td>
+
+            <td>
+              ${score}%
+            </td>
+
+            <td>
+              ${Object.keys(u.caseBest).length}/20
+            </td>
+
+            <td>
+              ${cert ? `${cert.score}%` : "—"}
+            </td>
+
+            <td>
+              ${
+                fmtDuration(
+                  u.sessions.reduce(
+                    (
+                      s,
+                      x
+                    ) =>
+                      s +
+                      Number(
+                        x.activeSeconds ||
+                        0
+                      ),
+                    0
+                  )
+                )
+              }
+            </td>
+
+            <td>
+              ${
+                fmtDate(
+                  u.presence.heartbeatAt ||
+                  u.lastSeenAt
+                )
+              }
+            </td>
+
+            <td>
+
+              <button
+                class="btn small"
+                data-user="${u.uid}"
+              >
+                Administrar
+              </button>
+
+            </td>
+
+          </tr>
+          `;
+        }
+      ).join("") ||
+      `
+      <tr>
+        <td colspan="10">
+          <div class="empty">
+            No hay usuarios.
+          </div>
+        </td>
+      </tr>
+      `;
+
+    $("adminUserRows").innerHTML =
+      userRowsHtml;
+
+    if(
+      $("adminUserRowsMirror")
+    ){
+      $("adminUserRowsMirror").innerHTML =
+        userRowsHtml;
+    }
+
+    $("teamRows").innerHTML =
+      teams.map(
+        t => `
+          <tr>
+
+            <td>
+              <b>
+                ${esc(t.name || t.id)}
+              </b>
+            </td>
+
+            <td>
+              ${esc(t.cohort || "—")}
+            </td>
+
+            <td>
+              ${
+                users.filter(
+                  u =>
+                    u.teamId ===
+                    t.id
+                ).length
+              }
+            </td>
+
+            <td>
+              ${fmtDate(t.createdAt)}
+            </td>
+
+          </tr>
+        `
+      ).join("") ||
+      `
+      <tr>
+        <td colspan="4">
+          <div class="empty">
+            No hay equipos creados.
+          </div>
+        </td>
+      </tr>
+      `;
+
+    $("assignmentRows").innerHTML =
+      [
+        ...state.assignments.values()
+      ]
+        .sort(
+          (
+            a,
+            b
+          ) =>
+            (
+              dateOf(
+                b.createdAt
+              )?.getTime() ||
+              0
+            ) -
+            (
+              dateOf(
+                a.createdAt
+              )?.getTime() ||
+              0
+            )
+        )
+        .map(
+          a => `
+            <tr>
+
+              <td>
+                ${esc(a.title || "Asignación")}
               </td>
 
               <td>
                 ${
                   esc(
-                    u.team ||
-                    "Sin equipo"
+                    state.users.get(
+                      a.userId
+                    )?.fullName ||
+                    a.userName ||
+                    a.userId
                   )
                 }
+              </td>
+
+              <td>
+                ${esc(a.type)}
+              </td>
+
+              <td>
+                ${fmtDay(a.dueAt)}
               </td>
 
               <td>
 
                 <span
-                  class="presence ${
-                    u.online
-                      ? "online"
-                      : ""
+                  class="badge ${
+                    a.status ===
+                    "completed"
+                      ? "green"
+                      : "amber"
                   }"
                 >
-
-                  <i></i>
-
-                  ${
-                    u.online
-                      ? "En línea"
-                      : "Offline"
-                  }
-
+                  ${esc(a.status || "assigned")}
                 </span>
 
               </td>
 
-              <td>
-                ${progress}%
-              </td>
-
-              <td>
-                ${score}%
-              </td>
-
-              <td>
-                ${
-                  Object.keys(
-                    u.caseBest
-                  ).length
-                }/20
-              </td>
-
-              <td>
-                ${
-                  cert
-                    ? `${cert.score}%`
-                    : "—"
-                }
-              </td>
-
-              <td>
-                ${
-                  fmtDuration(
-                    u.sessions.reduce(
-                      (
-                        s,
-                        x
-                      ) =>
-                        s +
-                        Number(
-                          x.activeSeconds ||
-                          0
-                        ),
-                      0
-                    )
-                  )
-                }
-              </td>
-
-              <td>
-                ${
-                  fmtDate(
-                    u.presence
-                      .heartbeatAt ||
-                    u.lastSeenAt
-                  )
-                }
-              </td>
-
-              <td>
-
-                <button
-                  class="btn small"
-                  data-user="${
-                    u.uid
-                  }"
-                >
-                  Administrar
-                </button>
-
-              </td>
-
             </tr>
-            `;
-          }
+          `
         )
         .join("") ||
-        `
-        <tr>
-
-          <td
-            colspan="10"
-          >
-
-            <div class="empty">
-              No hay usuarios.
-            </div>
-
-          </td>
-
-        </tr>
-        `;
-
-    $("adminUserRows")
-      .innerHTML =
-        userRowsHtml;
-
-    if(
-      $("adminUserRowsMirror")
-    ){
-      $("adminUserRowsMirror")
-        .innerHTML =
-          userRowsHtml;
-    }
-
-    $("teamRows")
-      .innerHTML =
-        teams
-          .map(
-            t =>
-              `
-              <tr>
-
-                <td>
-                  <b>
-                    ${
-                      esc(
-                        t.name ||
-                        t.id
-                      )
-                    }
-                  </b>
-                </td>
-
-                <td>
-                  ${
-                    esc(
-                      t.cohort ||
-                      "—"
-                    )
-                  }
-                </td>
-
-                <td>
-                  ${
-                    users.filter(
-                      u =>
-                        u.teamId ===
-                        t.id
-                    ).length
-                  }
-                </td>
-
-                <td>
-                  ${
-                    fmtDate(
-                      t.createdAt
-                    )
-                  }
-                </td>
-
-              </tr>
-              `
-          )
-          .join("") ||
-        `
-        <tr>
-
-          <td
-            colspan="4"
-          >
-
-            <div class="empty">
-              No hay equipos creados.
-            </div>
-
-          </td>
-
-        </tr>
-        `;
-
-    $("assignmentRows")
-      .innerHTML =
-        [
-          ...state.assignments
-            .values()
-        ]
-          .sort(
-            (
-              a,
-              b
-            ) =>
-              (
-                dateOf(
-                  b.createdAt
-                )?.getTime() ||
-                0
-              ) -
-              (
-                dateOf(
-                  a.createdAt
-                )?.getTime() ||
-                0
-              )
-          )
-          .map(
-            a =>
-              `
-              <tr>
-
-                <td>
-                  ${
-                    esc(
-                      a.title ||
-                      "Asignación"
-                    )
-                  }
-                </td>
-
-                <td>
-                  ${
-                    esc(
-                      state.users.get(
-                        a.userId
-                      )?.fullName ||
-                      a.userName ||
-                      a.userId
-                    )
-                  }
-                </td>
-
-                <td>
-                  ${
-                    esc(
-                      a.type
-                    )
-                  }
-                </td>
-
-                <td>
-                  ${
-                    fmtDay(
-                      a.dueAt
-                    )
-                  }
-                </td>
-
-                <td>
-
-                  <span
-                    class="badge ${
-                      a.status ===
-                      "completed"
-                        ? "green"
-                        : "amber"
-                    }"
-                  >
-                    ${
-                      esc(
-                        a.status ||
-                        "assigned"
-                      )
-                    }
-                  </span>
-
-                </td>
-
-              </tr>
-              `
-          )
-          .join("") ||
-        `
-        <tr>
-
-          <td
-            colspan="5"
-          >
-
-            <div class="empty">
-              No hay asignaciones.
-            </div>
-
-          </td>
-
-        </tr>
-        `;
+      `
+      <tr>
+        <td colspan="5">
+          <div class="empty">
+            No hay asignaciones.
+          </div>
+        </td>
+      </tr>
+      `;
 
     const moduleAvg =
       MODULES.map(
-        m=>{
-
+        m => {
           const vals =
             users.map(
               u =>
@@ -3119,51 +4841,37 @@ async function initAdmin(){
       );
 
     const moduleAnalyticsHtml =
-      moduleAvg
-        .map(
-          m =>
-            `
-            <div class="analytics-box">
+      moduleAvg.map(
+        m => `
+          <div class="analytics-box">
 
-              <span
-                class="muted tiny"
-              >
-                ${
-                  esc(
-                    m.title
-                  )
-                }
-              </span>
+            <span class="muted tiny">
+              ${esc(m.title)}
+            </span>
 
-              <b>
-                ${m.avg}%
-              </b>
+            <b>
+              ${m.avg}%
+            </b>
 
-              <div class="progress">
-                <i
-                  style="width:${m.avg}%"
-                ></i>
-              </div>
-
+            <div class="progress">
+              <i style="width:${m.avg}%"></i>
             </div>
-            `
-        )
-        .join("");
 
-    $("moduleAnalytics")
-      .innerHTML =
-        moduleAnalyticsHtml;
+          </div>
+        `
+      ).join("");
+
+    $("moduleAnalytics").innerHTML =
+      moduleAnalyticsHtml;
 
     if(
       $("moduleAnalyticsMirror")
     ){
-      $("moduleAnalyticsMirror")
-        .innerHTML =
-          moduleAnalyticsHtml;
+      $("moduleAnalyticsMirror").innerHTML =
+        moduleAnalyticsHtml;
     }
 
-    const qStats =
-      {};
+    const qStats = {};
 
     certs.forEach(
       a =>
@@ -3171,8 +4879,7 @@ async function initAdmin(){
           a.answers ||
           []
         ).forEach(
-          ans=>{
-
+          ans => {
             const key =
               ans.questionId ||
               "unknown";
@@ -3188,14 +4895,10 @@ async function initAdmin(){
                 0
             };
 
-            qStats[key]
-              .total++;
+            qStats[key].total++;
 
-            if(
-              !ans.correct
-            ){
-              qStats[key]
-                .wrong++;
+            if(!ans.correct){
+              qStats[key].wrong++;
             }
           }
         )
@@ -3254,80 +4957,57 @@ async function initAdmin(){
           10
         );
 
-    $("questionAnalytics")
-      .innerHTML =
-        missed
-          .map(
-            x =>
-              `
-              <div class="list-row">
+    $("questionAnalytics").innerHTML =
+      missed.map(
+        x => `
+          <div class="list-row">
 
-                <div class="list-main">
+            <div class="list-main">
 
-                  <b>
-                    ${
-                      esc(
-                        x.q?.title ||
-                        x.id
-                      )
-                    }
-                  </b>
+              <b>
+                ${esc(x.q?.title || x.id)}
+              </b>
 
-                  <span>
-                    ${
-                      esc(
-                        x.q?.skill ||
-                        ""
-                      )
-                    }
-                    ·
-                    ${
-                      x.wrong
-                    }/${
-                      x.total
-                    }
-                    incorrectas
-                  </span>
+              <span>
+                ${esc(x.q?.skill || "")}
+                ·
+                ${x.wrong}/${x.total}
+                incorrectas
+              </span>
 
-                </div>
+            </div>
 
-                <span
-                  class="badge ${
-                    x.rate >=
-                    50
-                      ? "red"
-                      : "amber"
-                  }"
-                >
-                  ${
-                    x.rate
-                  }%
-                </span>
+            <span
+              class="badge ${
+                x.rate >=
+                50
+                  ? "red"
+                  : "amber"
+              }"
+            >
+              ${x.rate}%
+            </span>
 
-              </div>
-              `
-          )
-          .join("") ||
+          </div>
         `
-        <div class="empty">
-          Todavía no hay datos de certificación.
-        </div>
-        `;
+      ).join("") ||
+      `
+      <div class="empty">
+        Todavía no hay datos de certificación.
+      </div>
+      `;
   }
 
   $("adminTabs")
     .addEventListener(
       "click",
-      e=>{
-
+      e => {
         const b =
           e.target.closest(
             "[data-tab]"
           );
 
-        if(!b){
-          return;
-        }
+        if(!b) return;
 
         state.tab =
           b.dataset.tab;
@@ -3361,14 +5041,9 @@ async function initAdmin(){
     $("adminSearch"),
     $("adminTeamFilter"),
     $("adminStatusFilter")
-  ]
-    .forEach(
-      el=>{
-
-        if(!el){
-          return;
-        }
-
+  ].forEach(
+    el => {
+      if(el){
         el.addEventListener(
           el.tagName ===
             "INPUT"
@@ -3377,19 +5052,17 @@ async function initAdmin(){
           renderAdmin
         );
       }
-    );
+    }
+  );
 
   const userRowHandler =
-    e=>{
-
+    e => {
       const b =
         e.target.closest(
           "[data-user]"
         );
 
-      if(!b){
-        return;
-      }
+      if(!b) return;
 
       openUser(
         b.dataset.user
@@ -3408,10 +5081,7 @@ async function initAdmin(){
       userRowHandler
     );
 
-  function openUser(
-    uid
-  ){
-
+  function openUser(uid){
     const u =
       mergedUsers()
         .find(
@@ -3420,84 +5090,62 @@ async function initAdmin(){
             uid
         );
 
-    if(!u){
-      return;
-    }
+    if(!u) return;
 
     state.selected =
       u;
 
-    $("userModalTitle")
-      .textContent =
-        u.fullName ||
-        "Administrar usuario";
+    $("userModalTitle").textContent =
+      u.fullName ||
+      "Administrar usuario";
 
-    $("userModalSubtitle")
-      .textContent =
-        `${
-          u.email ||
-          uid
-        } · ${
-          uid
-        }`;
+    $("userModalSubtitle").textContent =
+      `${u.email || uid} · ${uid}`;
 
-    $("editName")
-      .value =
-        u.fullName ||
-        "";
+    $("editName").value =
+      u.fullName ||
+      "";
 
-    $("editEmail")
-      .value =
-        u.email ||
-        "";
+    $("editEmail").value =
+      u.email ||
+      "";
 
-    $("editRole")
-      .value =
-        u.role ||
-        settings.defaultRole ||
-        "Account Manager";
+    $("editRole").value =
+      u.role ||
+      settings.defaultRole ||
+      "Account Manager";
 
-    $("editEmployee")
-      .value =
-        u.employeeId ||
-        "";
+    $("editEmployee").value =
+      u.employeeId ||
+      "";
 
-    $("editCountry")
-      .value =
-        u.country ||
-        "";
+    $("editCountry").value =
+      u.country ||
+      "";
 
-    $("editLanguage")
-      .value =
-        u.language ||
-        "English";
+    $("editLanguage").value =
+      u.language ||
+      "English";
 
-    $("editTeam")
-      .value =
-        u.teamId ||
-        "all";
+    $("editTeam").value =
+      u.teamId ||
+      "all";
 
-    $("editAccess")
-      .value =
-        u.access.status ===
-        "blocked"
-          ? "blocked"
-          : "active";
+    $("editAccess").value =
+      u.access.status ===
+      "blocked"
+        ? "blocked"
+        : "active";
 
-    $("editMessage")
-      .value =
-        u.access.message ||
-        "";
+    $("editMessage").value =
+      u.access.message ||
+      "";
 
-    $("editNotes")
-      .value =
-        u.notes ||
-        "";
+    $("editNotes").value =
+      u.notes ||
+      "";
 
-    $("userDetailStats")
-      .innerHTML =
-
-      `
+    $("userDetailStats").innerHTML = `
       <div class="analytics-box">
 
         <span>
@@ -3525,11 +5173,7 @@ async function initAdmin(){
         </span>
 
         <b>
-          ${
-            Object.keys(
-              u.caseBest
-            ).length
-          }/20
+          ${Object.keys(u.caseBest).length}/20
         </b>
 
       </div>
@@ -3560,28 +5204,26 @@ async function initAdmin(){
         </b>
 
       </div>
-      `;
+    `;
 
     $("userModal").hidden =
       false;
   }
 
-  $("userModalClose")
-    .onclick =
-      () =>
-        $("userModal").hidden =
-          true;
+  $("userModalClose").onclick =
+    () =>
+      $("userModal").hidden =
+        true;
 
-  $("userModalCancel")
-    .onclick =
-      () =>
-        $("userModal").hidden =
-          true;
+  $("userModalCancel").onclick =
+    () =>
+      $("userModal").hidden =
+        true;
 
   $("userModal")
     .addEventListener(
       "click",
-      e=>{
+      e => {
         if(
           e.target ===
           $("userModal")
@@ -3593,14 +5235,11 @@ async function initAdmin(){
     );
 
   $("saveUser").onclick =
-    async()=>{
-
+    async () => {
       const u =
         state.selected;
 
-      if(!u){
-        return;
-      }
+      if(!u) return;
 
       const b =
         $("saveUser");
@@ -3612,14 +5251,11 @@ async function initAdmin(){
       );
 
       try{
-
         const teamId =
-          $("editTeam")
-            .value ===
+          $("editTeam").value ===
           "all"
             ? ""
-            : $("editTeam")
-                .value;
+            : $("editTeam").value;
 
         const team =
           state.teams.get(
@@ -3681,17 +5317,14 @@ async function initAdmin(){
               user.uid
           },
           {
-            merge:
-              true
+            merge: true
           }
         );
 
         if(
-          $("editAccess")
-            .value ===
+          $("editAccess").value ===
           "blocked"
         ){
-
           await setDoc(
             doc(
               db,
@@ -3716,13 +5349,10 @@ async function initAdmin(){
                 user.uid
             },
             {
-              merge:
-                true
+              merge: true
             }
           );
-
         }else{
-
           await deleteDoc(
             doc(
               db,
@@ -3730,8 +5360,7 @@ async function initAdmin(){
               u.uid
             )
           ).catch(
-            () =>
-              {}
+            () => {}
           );
         }
 
@@ -3741,7 +5370,6 @@ async function initAdmin(){
             .trim();
 
         if(note){
-
           await setDoc(
             doc(
               db,
@@ -3761,13 +5389,10 @@ async function initAdmin(){
                 user.uid
             },
             {
-              merge:
-                true
+              merge: true
             }
           );
-
         }else{
-
           await deleteDoc(
             doc(
               db,
@@ -3775,8 +5400,7 @@ async function initAdmin(){
               u.uid
             )
           ).catch(
-            () =>
-              {}
+            () => {}
           );
         }
 
@@ -3786,17 +5410,13 @@ async function initAdmin(){
 
         $("userModal").hidden =
           true;
-
       }catch(error){
-
         setMessage(
           $("userModalMessage"),
           errorText(error),
           "error"
         );
-
       }finally{
-
         busy(
           b,
           false
@@ -3805,18 +5425,14 @@ async function initAdmin(){
     };
 
   $("resetUser").onclick =
-    async()=>{
-
+    async () => {
       const u =
         state.selected;
 
       if(
         !u ||
         !confirm(
-          `Se eliminará todo el progreso de ${
-            u.fullName ||
-            u.email
-          }. La persona podrá volver a entrar con Google y empezar desde cero. ¿Continuar?`
+          `Se eliminará todo el progreso de ${u.fullName || u.email}. La persona podrá volver a entrar con Google y empezar desde cero. ¿Continuar?`
         )
       ){
         return;
@@ -3832,7 +5448,6 @@ async function initAdmin(){
       );
 
       try{
-
         await deleteQueryDocs(
           query(
             collection(
@@ -3876,9 +5491,7 @@ async function initAdmin(){
         );
 
         const batch =
-          writeBatch(
-            db
-          );
+          writeBatch(db);
 
         batch.delete(
           doc(
@@ -3920,17 +5533,13 @@ async function initAdmin(){
 
         $("userModal").hidden =
           true;
-
       }catch(error){
-
         setMessage(
           $("userModalMessage"),
           errorText(error),
           "error"
         );
-
       }finally{
-
         busy(
           b,
           false
@@ -3939,15 +5548,13 @@ async function initAdmin(){
     };
 
   $("createTeam").onclick =
-    async()=>{
-
+    async () => {
       const name =
         $("teamName")
           .value
           .trim();
 
       if(!name){
-
         return setMessage(
           $("teamMessage"),
           "Escribe un nombre para el equipo.",
@@ -3958,9 +5565,7 @@ async function initAdmin(){
       const id =
         name
           .toLowerCase()
-          .normalize(
-            "NFD"
-          )
+          .normalize("NFD")
           .replace(
             /[\u0300-\u036f]/g,
             ""
@@ -3976,12 +5581,9 @@ async function initAdmin(){
         "-" +
         Date.now()
           .toString()
-          .slice(
-            -5
-          );
+          .slice(-5);
 
       try{
-
         await setDoc(
           doc(
             db,
@@ -4009,22 +5611,18 @@ async function initAdmin(){
           }
         );
 
-        $("teamName")
-          .value =
-            "";
+        $("teamName").value =
+          "";
 
-        $("teamCohort")
-          .value =
-            "";
+        $("teamCohort").value =
+          "";
 
         setMessage(
           $("teamMessage"),
           "Equipo creado.",
           "success"
         );
-
       }catch(error){
-
         setMessage(
           $("teamMessage"),
           errorText(error),
@@ -4034,470 +5632,400 @@ async function initAdmin(){
     };
 
   function populateAssignmentUsers(){
-
     const users =
       mergedUsers();
 
-    $("assignmentUser")
-      .innerHTML =
-        '<option value="">Seleccionar usuario</option>' +
-        users
-          .map(
-            u =>
-              `<option value="${u.uid}">${esc(u.fullName || u.email || u.uid)}</option>`
-          )
-          .join("");
+    $("assignmentUser").innerHTML =
+      '<option value="">Seleccionar usuario</option>' +
+      users.map(
+        u =>
+          `<option value="${u.uid}">${esc(u.fullName || u.email || u.uid)}</option>`
+      ).join("");
 
-    $("assignmentModule")
-      .innerHTML =
-        MODULES
-          .map(
-            m =>
-              `<option value="${m.id}">${esc(m.title)}</option>`
-          )
-          .join("");
+    $("assignmentModule").innerHTML =
+      MODULES.map(
+        m =>
+          `<option value="${m.id}">${esc(m.title)}</option>`
+      ).join("");
   }
 
-  $("newAssignmentButton")
-    .onclick =
-      ()=>{
-        populateAssignmentUsers();
+  $("newAssignmentButton").onclick =
+    () => {
+      populateAssignmentUsers();
 
-        $("assignmentModal")
-          .hidden =
-            false;
-      };
+      $("assignmentModal").hidden =
+        false;
+    };
 
-  $("assignmentModalClose")
-    .onclick =
-      () =>
-        $("assignmentModal")
-          .hidden =
-            true;
+  $("assignmentModalClose").onclick =
+    () =>
+      $("assignmentModal").hidden =
+        true;
 
-  $("assignmentModalCancel")
-    .onclick =
-      () =>
-        $("assignmentModal")
-          .hidden =
-            true;
+  $("assignmentModalCancel").onclick =
+    () =>
+      $("assignmentModal").hidden =
+        true;
 
-  $("assignmentType")
-    .onchange =
-      ()=>{
+  $("assignmentType").onchange =
+    () => {
+      $("assignmentModuleField").hidden =
+        $("assignmentType").value !==
+        "module";
 
-        $("assignmentModuleField")
-          .hidden =
-            $("assignmentType")
-              .value !==
-            "module";
+      $("assignmentCaseField").hidden =
+        $("assignmentType").value !==
+        "case";
+    };
 
-        $("assignmentCaseField")
-          .hidden =
-            $("assignmentType")
-              .value !==
-            "case";
-      };
+  $("saveAssignment").onclick =
+    async () => {
+      const uid =
+        $("assignmentUser").value;
 
-  $("saveAssignment")
-    .onclick =
-      async()=>{
-
-        const uid =
-          $("assignmentUser")
-            .value;
-
-        const u =
-          mergedUsers()
-            .find(
-              x =>
-                x.uid ===
-                uid
-            );
-
-        if(!u){
-
-          return setMessage(
-            $("assignmentMessage"),
-            "Selecciona un usuario.",
-            "error"
+      const u =
+        mergedUsers()
+          .find(
+            x =>
+              x.uid ===
+              uid
           );
-        }
 
-        const type =
-          $("assignmentType")
-            .value;
+      if(!u){
+        return setMessage(
+          $("assignmentMessage"),
+          "Selecciona un usuario.",
+          "error"
+        );
+      }
 
-        const moduleId =
-          $("assignmentModule")
-            .value;
+      const type =
+        $("assignmentType").value;
 
-        const caseId =
-          Number(
-            $("assignmentCase")
-              .value ||
-            0
-          ) ||
-          null;
+      const moduleId =
+        $("assignmentModule").value;
 
-        let title =
-          $("assignmentTitle")
-            .value
-            .trim();
+      const caseId =
+        Number(
+          $("assignmentCase").value ||
+          0
+        ) ||
+        null;
 
-        if(!title){
+      let title =
+        $("assignmentTitle")
+          .value
+          .trim();
 
-          title =
-            type ===
-            "certification"
-
-              ? "Certificación final"
-
-              : type ===
-                "module"
-
+      if(!title){
+        title =
+          type ===
+          "certification"
+            ? "Certificación final"
+            : type ===
+              "module"
               ? getModule(
                   moduleId
                 ).title
+              : `Caso ${caseId}: ${getCase(caseId).es.title}`;
+      }
 
-              : `Caso ${caseId}: ${
-                  getCase(
-                    caseId
-                  ).es.title
-                }`;
-        }
-
-        try{
-
-          const ref =
-            doc(
-              collection(
-                db,
-                names.assignments
-              )
-            );
-
-          await setDoc(
-            ref,
-            {
-              userId:
-                uid,
-
-              userName:
-                u.fullName ||
-                u.email ||
-                uid,
-
-              teamId:
-                u.teamId ||
-                "",
-
-              team:
-                u.team ||
-                "",
-
-              type,
-
-              moduleId:
-                type ===
-                "module"
-                  ? moduleId
-                  : null,
-
-              caseId:
-                type ===
-                "case"
-                  ? caseId
-                  : null,
-
-              title,
-
-              dueAt:
-                $("assignmentDue")
-                  .value
-                  ? new Date(
-                      $("assignmentDue")
-                        .value +
-                      "T23:59:59"
-                    ).toISOString()
-                  : null,
-
-              status:
-                "assigned",
-
-              assignedBy:
-                user.uid,
-
-              createdAt:
-                serverTimestamp(),
-
-              updatedAt:
-                serverTimestamp()
-            }
+      try{
+        const ref =
+          doc(
+            collection(
+              db,
+              names.assignments
+            )
           );
 
-          $("assignmentModal")
-            .hidden =
-              true;
+        await setDoc(
+          ref,
+          {
+            userId:
+              uid,
 
-          toast(
-            "Entrenamiento asignado"
-          );
+            userName:
+              u.fullName ||
+              u.email ||
+              uid,
 
-        }catch(error){
+            teamId:
+              u.teamId ||
+              "",
 
-          setMessage(
-            $("assignmentMessage"),
-            errorText(error),
-            "error"
-          );
-        }
-      };
+            team:
+              u.team ||
+              "",
 
-  if(
-    !superAdmin
-  ){
+            type,
 
-    $("superAdminTools")
-      .hidden =
-        true;
+            moduleId:
+              type ===
+              "module"
+                ? moduleId
+                : null,
 
-    $("createTeamTools")
-      .hidden =
-        true;
+            caseId:
+              type ===
+              "case"
+                ? caseId
+                : null,
+
+            title,
+
+            dueAt:
+              $("assignmentDue").value
+                ? new Date(
+                    $("assignmentDue").value +
+                    "T23:59:59"
+                  ).toISOString()
+                : null,
+
+            status:
+              "assigned",
+
+            assignedBy:
+              user.uid,
+
+            createdAt:
+              serverTimestamp(),
+
+            updatedAt:
+              serverTimestamp()
+          }
+        );
+
+        $("assignmentModal").hidden =
+          true;
+
+        toast(
+          "Entrenamiento asignado"
+        );
+      }catch(error){
+        setMessage(
+          $("assignmentMessage"),
+          errorText(error),
+          "error"
+        );
+      }
+    };
+
+  if(!superAdmin){
+    $("superAdminTools").hidden =
+      true;
+
+    $("createTeamTools").hidden =
+      true;
   }
 
-  $("saveManager")
-    .onclick =
-      async()=>{
+  $("saveManager").onclick =
+    async () => {
+      if(!superAdmin) return;
 
-        if(!superAdmin){
-          return;
-        }
+      const uid =
+        $("managerUid")
+          .value
+          .trim();
 
-        const uid =
-          $("managerUid")
-            .value
-            .trim();
-
-        if(!uid){
-
-          return setMessage(
-            $("managerMessage"),
-            "Pega el UID del manager.",
-            "error"
-          );
-        }
-
-        const teamIds =
-          [
-            ...$("managerTeams")
-              .selectedOptions
-          ].map(
-            o =>
-              o.value
-          );
-
-        try{
-
-          await setDoc(
-            doc(
-              db,
-              names.admins,
-              uid
-            ),
-            {
-              active:
-                true,
-
-              name:
-                $("managerName")
-                  .value
-                  .trim() ||
-                "Manager",
-
-              role:
-                "manager",
-
-              teamIds,
-
-              updatedAt:
-                serverTimestamp(),
-
-              updatedBy:
-                user.uid
-            },
-            {
-              merge:
-                true
-            }
-          );
-
-          setMessage(
-            $("managerMessage"),
-            "Manager guardado.",
-            "success"
-          );
-
-        }catch(error){
-
-          setMessage(
-            $("managerMessage"),
-            errorText(error),
-            "error"
-          );
-        }
-      };
-
-  $("exportAdmin")
-    .onclick =
-      ()=>{
-
-        const headers = [
-          "UID",
-          "Nombre",
-          "Correo",
-          "Equipo",
-          "Online",
-          "Progreso",
-          "Casos",
-          "Score",
-          "Certificación",
-          "Tiempo"
-        ];
-
-        const rows =
-          currentList()
-            .map(
-              u=>{
-
-                const cert =
-                  latestAttempt(
-                    u.certAttempts
-                  );
-
-                const score =
-                  Object.keys(
-                    u.caseBest
-                  ).length
-
-                    ? Math.round(
-                        Object.values(
-                          u.caseBest
-                        ).reduce(
-                          (
-                            a,
-                            b
-                          ) =>
-                            a +
-                            b,
-                          0
-                        ) /
-                        Object.keys(
-                          u.caseBest
-                        ).length
-                      )
-
-                    : 0;
-
-                return [
-                  u.uid,
-                  u.fullName,
-                  u.email,
-                  u.team,
-                  u.online
-                    ? "Sí"
-                    : "No",
-                  Math.round(
-                    Object.keys(
-                      u.caseBest
-                    ).length /
-                    20 *
-                    100
-                  ),
-                  Object.keys(
-                    u.caseBest
-                  ).length,
-                  score,
-                  cert?.score ??
-                    "",
-                  u.sessions.reduce(
-                    (
-                      s,
-                      x
-                    ) =>
-                      s +
-                      Number(
-                        x.activeSeconds ||
-                        0
-                      ),
-                    0
-                  )
-                ];
-              }
-            );
-
-        const csv =
-          [
-            headers,
-            ...rows
-          ]
-            .map(
-              r =>
-                r.map(
-                  v =>
-                    `"${String(
-                      v ??
-                      ""
-                    ).replaceAll(
-                      '"',
-                      '""'
-                    )}"`
-                )
-                .join(",")
-            )
-            .join(
-              "\r\n"
-            );
-
-        const blob =
-          new Blob(
-            [
-              "\ufeff" +
-              csv
-            ],
-            {
-              type:
-                "text/csv;charset=utf-8"
-            }
-          );
-
-        const url =
-          URL.createObjectURL(
-            blob
-          );
-
-        const a =
-          document.createElement(
-            "a"
-          );
-
-        a.href =
-          url;
-
-        a.download =
-          `training-academy-${dateKey()}.csv`;
-
-        a.click();
-
-        setTimeout(
-          () =>
-            URL.revokeObjectURL(
-              url
-            ),
-          1000
+      if(!uid){
+        return setMessage(
+          $("managerMessage"),
+          "Pega el UID del manager.",
+          "error"
         );
-      };
+      }
+
+      const teamIds =
+        [
+          ...$("managerTeams").selectedOptions
+        ].map(
+          o =>
+            o.value
+        );
+
+      try{
+        await setDoc(
+          doc(
+            db,
+            names.admins,
+            uid
+          ),
+          {
+            active:
+              true,
+
+            name:
+              $("managerName")
+                .value
+                .trim() ||
+              "Manager",
+
+            role:
+              "manager",
+
+            teamIds,
+
+            updatedAt:
+              serverTimestamp(),
+
+            updatedBy:
+              user.uid
+          },
+          {
+            merge: true
+          }
+        );
+
+        setMessage(
+          $("managerMessage"),
+          "Manager guardado.",
+          "success"
+        );
+      }catch(error){
+        setMessage(
+          $("managerMessage"),
+          errorText(error),
+          "error"
+        );
+      }
+    };
+
+  $("exportAdmin").onclick =
+    () => {
+      const headers = [
+        "UID",
+        "Nombre",
+        "Correo",
+        "Equipo",
+        "Online",
+        "Progreso",
+        "Casos",
+        "Score",
+        "Certificación",
+        "Tiempo"
+      ];
+
+      const rows =
+        currentList()
+          .map(
+            u => {
+              const cert =
+                latestAttempt(
+                  u.certAttempts
+                );
+
+              const score =
+                Object.keys(
+                  u.caseBest
+                ).length
+                  ? Math.round(
+                      Object.values(
+                        u.caseBest
+                      ).reduce(
+                        (
+                          a,
+                          b
+                        ) =>
+                          a +
+                          b,
+                        0
+                      ) /
+                      Object.keys(
+                        u.caseBest
+                      ).length
+                    )
+                  : 0;
+
+              return [
+                u.uid,
+                u.fullName,
+                u.email,
+                u.team,
+                u.online
+                  ? "Sí"
+                  : "No",
+                Math.round(
+                  Object.keys(
+                    u.caseBest
+                  ).length /
+                  20 *
+                  100
+                ),
+                Object.keys(
+                  u.caseBest
+                ).length,
+                score,
+                cert?.score ??
+                  "",
+                u.sessions.reduce(
+                  (
+                    s,
+                    x
+                  ) =>
+                    s +
+                    Number(
+                      x.activeSeconds ||
+                      0
+                    ),
+                  0
+                )
+              ];
+            }
+          );
+
+      const csv =
+        [
+          headers,
+          ...rows
+        ]
+          .map(
+            r =>
+              r.map(
+                v =>
+                  `"${String(v ?? "").replaceAll('"', '""')}"`
+              ).join(",")
+          )
+          .join("\r\n");
+
+      const blob =
+        new Blob(
+          [
+            "\ufeff" +
+            csv
+          ],
+          {
+            type:
+              "text/csv;charset=utf-8"
+          }
+        );
+
+      const url =
+        URL.createObjectURL(
+          blob
+        );
+
+      const a =
+        document.createElement(
+          "a"
+        );
+
+      a.href =
+        url;
+
+      a.download =
+        `training-academy-${dateKey()}.csv`;
+
+      a.click();
+
+      setTimeout(
+        () =>
+          URL.revokeObjectURL(
+            url
+          ),
+        1000
+      );
+    };
 
   setInterval(
     renderAdmin,
@@ -4508,69 +6036,46 @@ async function initAdmin(){
 }
 
 try{
-
   if(
     page ===
     "login"
   ){
-
     await initLogin();
-
-  }
-  else if(
+  }else if(
     page ===
     "academy"
   ){
-
     await initAcademy();
-
-  }
-  else if(
+  }else if(
     page ===
     "simulator"
   ){
-
     await initSimulator();
-
-  }
-  else if(
+  }else if(
     page ===
     "certification"
   ){
-
     await initCertification();
-
-  }
-  else if(
+  }else if(
     page ===
     "admin"
   ){
-
     await initAdmin();
-
   }
-
 }catch(error){
-
   if(
     error?.message !==
     "NO_AUTH"
   ){
-
-    console.error(
-      error
-    );
+    console.error(error);
 
     const fatal =
       $("fatalMessage");
 
     if(fatal){
-
       setMessage(
         fatal,
-        errorText(
-          error
-        ),
+        errorText(error),
         "error"
       );
     }
