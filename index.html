@@ -141,8 +141,8 @@
 
         const accessRef = doc(db, settings.accessCollection || 'trainingAccess', user.uid);
         const accessSnap = await getDoc(accessRef);
-        if(accessSnap.exists() && ['blocked','archived'].includes(String(accessSnap.data().status || ''))){
-          const message = accessSnap.data().message || 'Tu acceso al entrenamiento no está activo. Contacta al administrador.';
+        if(accessSnap.exists() && String(accessSnap.data().status || '') === 'blocked'){
+          const message = accessSnap.data().message || 'Tu acceso al entrenamiento está bloqueado. Contacta al administrador.';
           await signOut(auth);
           throw new Error(message);
         }
