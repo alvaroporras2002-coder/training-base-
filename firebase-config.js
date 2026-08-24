@@ -8,31 +8,62 @@ window.TRAINING_FIREBASE_CONFIG = Object.freeze({
 });
 
 window.TRAINING_APP_SETTINGS = Object.freeze({
-  appName: "Merchant Portal Training",
-  appVersion: "14.0-google-realtime",
+  appName: "DoorDash AM Training Academy",
+  appVersion: "15.0-academy",
 
-  // Dejalo vacio para permitir cualquier cuenta de Google.
-  // Si despues quieres permitir SOLO correos @ext.doordash.com:
+  // IMPORTANTE:
+  // Este nombre debe coincidir con el simulador grande
+  // para compartir la misma sesion de Google.
+  firebaseAppName: "training-simulator-v14-cloud",
+
+  // Dejalo vacio para permitir cualquier cuenta Google.
+  // Si luego quieres solo @ext.doordash.com:
   // allowedEmailDomain: "ext.doordash.com",
   allowedEmailDomain: "",
 
   supportEmail: "",
 
-  // Firestore collections
+  // URLs de la plataforma
+  loginUrl: "./index.html",
+  academyUrl: "./academy.html",
+  simulatorWrapperUrl: "./simulator.html",
+
+  // NO vamos a modificar ni renombrar el archivo grande.
+  // %20 representa el espacio en el nombre.
+  simulatorFile: "./training-simulator-v14%20(1).html",
+
+  certificationUrl: "./certification.html",
+  adminUrl: "./admin.html",
+
+  // Colecciones actuales de Firebase
   registrationsCollection: "trainingRegistrations",
   accessCollection: "trainingAccess",
   adminNotesCollection: "trainingAdminNotes",
   adminsCollection: "trainingAdmins",
   presenceCollection: "trainingPresence",
 
-  // Local storage
-  registrationStorageKey: "dd_training_registration_v3",
-  simulatorProfileKey: "ddmp_training_profile_v14",
+  // Nuevas colecciones de Academy v15
+  teamsCollection: "trainingTeams",
+  assignmentsCollection: "trainingAssignments",
+  certificationAttemptsCollection: "trainingCertificationAttempts",
+  certificationDraftsCollection: "trainingCertificationDrafts",
+  sessionsCollection: "trainingSessions",
 
-  registrationVersion: 3,
+  // Training
   defaultRole: "Account Manager",
+  registrationVersion: 4,
+  caseCount: 20,
+  quizPassPercent: 80,
 
-  // Realtime presence
+  // Presencia en tiempo real
   presenceHeartbeatMs: 20000,
-  presenceOnlineThresholdMs: 60000
+  presenceOnlineWindowMs: 70000,
+
+  // Tiempo activo de entrenamiento
+  sessionHeartbeatMs: 30000,
+
+  // Certificacion final
+  certificationQuestionCount: 40,
+  certificationPassPercent: 85,
+  certificationMinutes: 60
 });
