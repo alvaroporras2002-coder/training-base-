@@ -2,245 +2,114 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover"
-  >
-
-  <meta
-    name="robots"
-    content="noindex,nofollow,noarchive"
-  >
-
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
   <title>Merchant Portal Simulator</title>
-
   <link rel="stylesheet" href="./academy.css">
-
   <style>
-    /* ======================================================
-       HARD RESET
-       ====================================================== */
-
-    html {
-      width: 100% !important;
-      min-width: 100% !important;
-      max-width: none !important;
-      height: 100% !important;
-      min-height: 100% !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      overflow: hidden !important;
-    }
-
-    body {
-      position: relative !important;
-
-      width: 100vw !important;
-      min-width: 100vw !important;
-      max-width: none !important;
-
-      height: 100vh !important;
-      min-height: 100vh !important;
-      max-height: none !important;
-
-      margin: 0 !important;
-      padding: 0 !important;
-
-      overflow: hidden !important;
-
-      display: block !important;
-
-      background: #f4f5f7 !important;
-    }
-
-    /* ======================================================
-       TOP BAR
-       ====================================================== */
-
-    .sim-top {
-      position: fixed !important;
-
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-
-      width: 100vw !important;
-      min-width: 100vw !important;
-      max-width: none !important;
-
-      height: 68px !important;
-      min-height: 68px !important;
-      max-height: 68px !important;
-
-      margin: 0 !important;
-      padding: 0 18px !important;
-
-      z-index: 99999 !important;
-
-      display: flex !important;
-      align-items: center !important;
-
-      box-sizing: border-box !important;
-
-      background: #ffffff !important;
-      border-bottom: 1px solid #e5e5e5 !important;
-
-      overflow: hidden !important;
-    }
-
-    .sim-top .spacer {
-      flex: 1 1 auto !important;
-    }
-
-    .sim-top > * {
-      flex-shrink: 0 !important;
-    }
-
-    /* ======================================================
-       FRAME
-       ====================================================== */
-
-    #simulatorFrame {
-      position: fixed !important;
-
-      top: 68px !important;
-      left: 0 !important;
-      right: 0 !important;
-      bottom: 0 !important;
-
-      width: 100vw !important;
-      min-width: 100vw !important;
-      max-width: none !important;
-
-      height: calc(100vh - 68px) !important;
-      min-height: calc(100vh - 68px) !important;
-      max-height: none !important;
-
-      margin: 0 !important;
-      padding: 0 !important;
-
-      border: 0 !important;
-      outline: 0 !important;
-
-      display: block !important;
-
-      box-sizing: border-box !important;
-
-      background: #ffffff !important;
-
-      z-index: 1 !important;
-
-      overflow: auto !important;
-    }
-
-    /* ======================================================
-       MESSAGES
-       ====================================================== */
-
-    #fatalMessage,
-    #toast {
-      z-index: 100000 !important;
-    }
-
-    /* ======================================================
-       MOBILE
-       ====================================================== */
-
-    @media (max-width: 760px) {
-
-      .sim-top {
-        height: 60px !important;
-        min-height: 60px !important;
-        max-height: 60px !important;
-
-        padding: 0 10px !important;
-      }
-
-      #simulatorFrame {
-        top: 60px !important;
-
-        height: calc(100vh - 60px) !important;
-        min-height: calc(100vh - 60px) !important;
-      }
-    }
+    html,body{width:100%!important;min-width:100%!important;height:100%!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#f4f5f7!important}
+    body{position:relative!important;display:block!important;width:100vw!important;height:100vh!important}
+    .sim-top{position:fixed!important;top:0!important;left:0!important;right:0!important;width:100vw!important;height:68px!important;min-height:68px!important;max-height:68px!important;margin:0!important;padding:0 18px!important;z-index:99999!important;display:flex!important;align-items:center!important;gap:14px!important;box-sizing:border-box!important;background:#fff!important;border-bottom:1px solid #e5e5e5!important;box-shadow:0 2px 12px rgba(0,0,0,.06)!important;overflow:hidden!important}
+    .sim-top .spacer{flex:1 1 auto!important}.sim-top>*{flex-shrink:0!important}
+    #simulatorFrame{position:fixed!important;top:68px!important;left:0!important;right:0!important;bottom:0!important;width:100vw!important;min-width:100vw!important;height:calc(100vh - 68px)!important;min-height:calc(100vh - 68px)!important;margin:0!important;padding:0!important;border:0!important;outline:0!important;display:block!important;box-sizing:border-box!important;background:#fff!important;z-index:1!important}
+    #fatalMessage,#toast{z-index:100000!important}
+    @media(max-width:760px){.sim-top{height:60px!important;min-height:60px!important;max-height:60px!important;padding:0 10px!important;gap:8px!important}.sim-top .presence,.sim-top .tiny.muted{display:none!important}#simulatorFrame{top:60px!important;height:calc(100vh - 60px)!important;min-height:calc(100vh - 60px)!important}}
   </style>
 </head>
-
-<body
-  class="sim-shell"
-  data-page="simulator"
->
-
+<body class="sim-shell" data-page="simulator">
   <header class="sim-top">
-
-    <button
-      id="backAcademy"
-      class="btn small"
-      type="button"
-    >
-      ← Volver a la Academia
-    </button>
-
-    <div>
-      <b>Merchant Portal Simulator</b>
-
-      <div class="tiny muted">
-        El archivo grande permanece intacto
-      </div>
-    </div>
-
+    <button id="backAcademy" class="btn small" type="button">← Volver a la Academia</button>
+    <div><b>Merchant Portal Simulator</b><div class="tiny muted">Caso administrado desde Academy</div></div>
     <div class="spacer"></div>
-
-    <span class="presence online">
-      <i
-        id="syncDot"
-        class="sync-dot"
-      ></i>
-
-      <span id="syncText">
-        Conectando progreso...
-      </span>
-    </span>
-
-    <span
-      id="simUser"
-      class="tiny muted"
-    ></span>
-
-    <button
-      id="simLogout"
-      class="btn small"
-      type="button"
-    >
-      Cerrar sesión
-    </button>
-
+    <span class="presence online"><i id="syncDot" class="sync-dot"></i><span id="syncText">Conectando progreso...</span></span>
+    <span id="simUser" class="tiny muted"></span>
+    <button id="simLogout" class="btn small" type="button">Cerrar sesión</button>
   </header>
 
-  <iframe
-    id="simulatorFrame"
-    title="DoorDash Merchant Portal Training Simulator"
-    src=""
-    allow="clipboard-read; clipboard-write"
-  ></iframe>
+  <iframe id="simulatorFrame" title="DoorDash Merchant Portal Training Simulator" src="" allow="clipboard-read; clipboard-write"></iframe>
+  <div id="fatalMessage" class="message"></div><div id="toast" class="toast"></div>
 
-  <div
-    id="fatalMessage"
-    class="message"
-  ></div>
+  <script>
+    (() => {
+      const frame = document.getElementById('simulatorFrame');
+      const targetCase = Number(new URLSearchParams(location.search).get('case'));
 
-  <div
-    id="toast"
-    class="toast"
-  ></div>
+      function normalize(text){
+        return String(text || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      }
 
+      function lockCaseNavigation(){
+        let doc, win;
+        try{
+          doc = frame.contentDocument;
+          win = frame.contentWindow;
+          if(!doc || !doc.body) return;
+        }catch(error){ return; }
+
+        if(!doc.getElementById('academyCaseLockStyles')){
+          const style = doc.createElement('style');
+          style.id = 'academyCaseLockStyles';
+          style.textContent = `
+            button[onclick*="quizRandomCase"],
+            select[onchange*="quizSelectCase"]{
+              display:none!important;
+            }
+            .academy-hidden-case-control{display:none!important;}
+          `;
+          (doc.head || doc.documentElement).appendChild(style);
+        }
+
+        const apply = () => {
+          doc.querySelectorAll('button').forEach(button => {
+            const text = normalize(button.textContent);
+            const onclick = button.getAttribute('onclick') || '';
+            if(
+              onclick.includes('quizRandomCase') ||
+              text === 'otro caso' ||
+              text === 'another case' ||
+              text === 'nuevo caso' ||
+              text === 'new mission' ||
+              text === 'nueva mision'
+            ){
+              button.classList.add('academy-hidden-case-control');
+              button.setAttribute('aria-hidden','true');
+              button.tabIndex = -1;
+            }
+          });
+
+          doc.querySelectorAll('select[onchange*="quizSelectCase"]').forEach(select => {
+            const section = select.closest('section') || select.parentElement;
+            if(section) section.classList.add('academy-hidden-case-control');
+          });
+        };
+
+        apply();
+        try{
+          const observer = new win.MutationObserver(apply);
+          observer.observe(doc.body,{childList:true,subtree:true});
+        }catch(error){}
+
+        if(targetCase >= 1 && targetCase <= 20){
+          const enforce = () => {
+            try{
+              if(win.V8 && typeof win.V8.quizSelectCase === 'function'){
+                const current = Number(win.V8.quizState?.caseId || 0);
+                if(current !== targetCase) win.V8.quizSelectCase(targetCase);
+              }
+            }catch(error){}
+          };
+          setTimeout(enforce,350);
+          setTimeout(enforce,1100);
+        }
+      }
+
+      frame.addEventListener('load', () => {
+        setTimeout(lockCaseNavigation,250);
+        setTimeout(lockCaseNavigation,900);
+      });
+    })();
+  </script>
   <script src="./firebase-config.js"></script>
-
-  <script
-    type="module"
-    src="./app.js"
-  ></script>
-
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
