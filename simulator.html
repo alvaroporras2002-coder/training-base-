@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Merchant Portal Simulator</title>
+  <link rel="stylesheet" href="./academy.css">
+</head>
+<body data-page="simulator" class="sim-shell">
+  <header class="sim-top">
+    <button id="backAcademy" class="btn small">← Volver a la Academia</button>
+    <div><b>Merchant Portal Simulator</b><div class="tiny muted">El archivo grande permanece intacto</div></div>
+    <div class="spacer"></div>
+    <span class="presence online"><i id="syncDot" class="sync-dot"></i><span id="syncText">Conectando progreso...</span></span>
+    <span id="simUser" class="tiny muted"></span>
+    <button id="simLogout" class="btn small">Cerrar sesión</button>
+  </header>
+  <iframe id="simulatorFrame" class="sim-frame" title="DoorDash Merchant Portal Training Simulator"></iframe>
+  <div id="fatalMessage" class="message"></div><div id="toast" class="toast"></div>
+  <script src="./firebase-config.js"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
