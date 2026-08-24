@@ -118,7 +118,7 @@
     let app, auth, db, handlingUid = null;
     try{
       if(!config.apiKey || !config.projectId || !config.appId) throw new Error('Falta la configuración de Firebase.');
-      app = initializeApp(config);
+      app = initializeApp(config, 'training-simulator-v14-cloud');
       auth = getAuth(app);
       db = getFirestore(app);
       await setPersistence(auth, browserLocalPersistence);
