@@ -1,61 +1,499 @@
 <!doctype html>
 <html lang="es">
+
 <head>
+
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="robots" content="noindex,nofollow,noarchive">
-  <title>DoorDash AM Training Academy</title>
-  <link rel="stylesheet" href="./academy.css">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
+
+  <meta
+    name="robots"
+    content="noindex,nofollow,noarchive"
+  >
+
+  <title>
+    DoorDash AM Training Academy
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="./academy.css"
+  >
+
 </head>
-<body data-page="academy">
+
+<body
+  data-page="academy"
+>
+
+  <!-- =====================================================
+       TOP BAR
+       ===================================================== -->
+
   <header class="topbar">
-    <div><div class="brand">DOORDASH</div><div class="brand-sub">AM Training Academy</div></div>
-    <div class="spacer"></div>
-    <a id="adminLink" class="btn small" href="./admin.html" hidden>Administración</a>
-    <div class="user-id"><b id="userName">Trainee</b><span id="userEmail"></span></div>
-    <button id="logoutButton" class="btn small">Cerrar sesión</button>
-  </header>
-  <main class="main">
-    <section class="hero">
-      <div style="font-size:11px;font-weight:900;letter-spacing:.1em">YOUR LEARNING PATH</div>
-      <h1>Hola, <span id="welcomeName">Trainee</span></h1>
-      <p id="heroSummary">Continúa desarrollando tus habilidades con casos reales del Merchant Portal.</p>
-      <div class="hero-actions">
-        <a id="continueTraining" class="btn" href="./simulator.html">Continuar entrenamiento</a>
-        <a class="btn" href="./certification.html">Certificación final</a>
+
+    <div>
+
+      <div class="brand">
+        DOORDASH
       </div>
-    </section>
-    <section class="grid stats">
-      <div class="stat"><span>Progreso general</span><b id="statProgress">0%</b><small>Casos aprobados</small></div>
-      <div class="stat"><span>Casos completados</span><b id="statCases">0/20</b><small>Biblioteca principal</small></div>
-      <div class="stat"><span>Promedio</span><b id="statScore">0%</b><small>Mejores puntuaciones</small></div>
-      <div class="stat"><span>Tiempo activo</span><b id="statTime">0 min</b><small>Sesiones registradas</small></div>
-      <div class="stat"><span>Racha</span><b id="statStreak">0 días</b><small>Días consecutivos</small></div>
-    </section>
-    <h2 class="section-title">Ruta de aprendizaje</h2>
-    <section id="moduleGrid" class="module-grid"></section>
-    <div class="two-col" style="margin-top:20px">
-      <section class="card">
-        <div class="card-head"><div><h2>Entrenamientos asignados</h2><div class="tiny muted">Asignaciones de managers y fechas límite</div></div></div>
-        <div id="assignmentList" class="card pad"></div>
-      </section>
-      <aside>
-        <section class="card pad">
-          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><div><h3 style="margin:0">Certificación</h3><p id="certStatus" class="muted tiny">Aún no has realizado la certificación.</p></div><span id="certBadge" class="badge amber">PENDIENTE</span></div>
-          <a class="btn red full" style="margin-top:12px" href="./certification.html">Abrir certificación</a>
-        </section>
-        <section class="card pad" style="margin-top:14px"><h3 style="margin-top:0">Mi perfil</h3><div id="profileDetails" class="list"></div></section>
-      </aside>
+
+      <div class="brand-sub">
+        AM Training Academy
+      </div>
+
     </div>
-  </main>
-  <div id="moduleModal" class="modal-bg" hidden>
-    <section class="modal">
-      <header class="modal-head"><h2 id="moduleModalTitle">Módulo</h2><button id="moduleModalClose" class="close">×</button></header>
-      <div id="moduleModalBody" class="modal-body"></div>
+
+    <div class="spacer"></div>
+
+    <a
+      id="adminLink"
+      class="btn small"
+      href="./admin.html"
+      hidden
+      data-i18n="common.admin"
+    >
+      Administración
+    </a>
+
+    <div class="user-id">
+
+      <b id="userName">
+        Trainee
+      </b>
+
+      <span
+        id="userEmail"
+      ></span>
+
+    </div>
+
+    <button
+      id="logoutButton"
+      class="btn small"
+      type="button"
+      data-i18n="common.logout"
+    >
+      Cerrar sesión
+    </button>
+
+  </header>
+
+
+  <!-- =====================================================
+       MAIN
+       ===================================================== -->
+
+  <main class="main">
+
+    <!-- ===================================================
+         HERO
+         =================================================== -->
+
+    <section class="hero">
+
+      <div
+        style="
+          font-size:11px;
+          font-weight:900;
+          letter-spacing:.1em
+        "
+        data-i18n="academy.learningPath"
+      >
+        TU RUTA DE APRENDIZAJE
+      </div>
+
+      <h1>
+
+        <span
+          data-i18n="academy.greeting"
+        >
+          Hola
+        </span>
+
+        <span>, </span>
+
+        <span id="welcomeName">
+          Trainee
+        </span>
+
+      </h1>
+
+      <p
+        id="heroSummary"
+        data-i18n="academy.summary"
+      >
+        Continúa desarrollando tus habilidades con casos reales del Merchant Portal.
+      </p>
+
+      <div class="hero-actions">
+
+        <a
+          id="continueTraining"
+          class="btn"
+          href="./simulator.html"
+          data-i18n="common.continueTraining"
+        >
+          Continuar entrenamiento
+        </a>
+
+        <a
+          class="btn"
+          href="./certification.html"
+          data-i18n="cert.title"
+        >
+          Certificación de Account Manager
+        </a>
+
+      </div>
+
     </section>
+
+
+    <!-- ===================================================
+         STATS
+         =================================================== -->
+
+    <section
+      class="grid stats"
+    >
+
+      <div class="stat">
+
+        <span
+          data-i18n="academy.generalProgress"
+        >
+          Progreso general
+        </span>
+
+        <b id="statProgress">
+          0%
+        </b>
+
+        <small
+          data-i18n="academy.casesApproved"
+        >
+          Casos aprobados
+        </small>
+
+      </div>
+
+
+      <div class="stat">
+
+        <span
+          data-i18n="academy.completedCases"
+        >
+          Casos completados
+        </span>
+
+        <b id="statCases">
+          0/20
+        </b>
+
+        <small
+          data-i18n="academy.mainLibrary"
+        >
+          Biblioteca principal
+        </small>
+
+      </div>
+
+
+      <div class="stat">
+
+        <span
+          data-i18n="academy.average"
+        >
+          Promedio
+        </span>
+
+        <b id="statScore">
+          0%
+        </b>
+
+        <small
+          data-i18n="academy.bestScores"
+        >
+          Mejores puntuaciones
+        </small>
+
+      </div>
+
+
+      <div class="stat">
+
+        <span
+          data-i18n="academy.activeTime"
+        >
+          Tiempo activo
+        </span>
+
+        <b id="statTime">
+          0 min
+        </b>
+
+        <small
+          data-i18n="academy.sessions"
+        >
+          Sesiones registradas
+        </small>
+
+      </div>
+
+
+      <div class="stat">
+
+        <span
+          data-i18n="academy.streak"
+        >
+          Racha
+        </span>
+
+        <b id="statStreak">
+          0 días
+        </b>
+
+        <small
+          data-i18n="academy.consecutiveDays"
+        >
+          Días consecutivos
+        </small>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================
+         LEARNING PATH
+         =================================================== -->
+
+    <h2
+      class="section-title"
+      data-i18n="academy.learningRoute"
+    >
+      Ruta de aprendizaje
+    </h2>
+
+
+    <section
+      id="moduleGrid"
+      class="module-grid"
+    ></section>
+
+
+    <!-- ===================================================
+         ASSIGNMENTS + CERTIFICATION + PROFILE
+         =================================================== -->
+
+    <div
+      class="two-col"
+      style="margin-top:20px"
+    >
+
+
+      <!-- ===============================================
+           ASSIGNMENTS
+           =============================================== -->
+
+      <section class="card">
+
+        <div class="card-head">
+
+          <div>
+
+            <h2
+              data-i18n="academy.assignments"
+            >
+              Entrenamientos asignados
+            </h2>
+
+            <div
+              class="tiny muted"
+              data-i18n="academy.assignmentSub"
+            >
+              Asignaciones de managers y fechas límite
+            </div>
+
+          </div>
+
+        </div>
+
+        <div
+          id="assignmentList"
+          class="card pad"
+        ></div>
+
+      </section>
+
+
+      <!-- ===============================================
+           RIGHT COLUMN
+           =============================================== -->
+
+      <aside>
+
+
+        <!-- =============================================
+             CERTIFICATION
+             ============================================= -->
+
+        <section class="card pad">
+
+          <div
+            style="
+              display:flex;
+              justify-content:space-between;
+              gap:10px;
+              align-items:center
+            "
+          >
+
+            <div>
+
+              <h3
+                style="margin:0"
+                data-i18n="academy.certification"
+              >
+                Certificación
+              </h3>
+
+              <p
+                id="certStatus"
+                class="muted tiny"
+                data-i18n="academy.notTaken"
+              >
+                Aún no has realizado la certificación.
+              </p>
+
+            </div>
+
+            <span
+              id="certBadge"
+              class="badge amber"
+            >
+              PENDIENTE
+            </span>
+
+          </div>
+
+
+          <a
+            class="btn red full"
+            style="margin-top:12px"
+            href="./certification.html"
+            data-i18n="academy.openCertification"
+          >
+            Abrir certificación
+          </a>
+
+        </section>
+
+
+        <!-- =============================================
+             PROFILE
+             ============================================= -->
+
+        <section
+          class="card pad"
+          style="margin-top:14px"
+        >
+
+          <h3
+            style="margin-top:0"
+            data-i18n="academy.myProfile"
+          >
+            Mi perfil
+          </h3>
+
+          <div
+            id="profileDetails"
+            class="list"
+          ></div>
+
+        </section>
+
+      </aside>
+
+    </div>
+
+  </main>
+
+
+  <!-- =====================================================
+       MODULE MODAL
+       ===================================================== -->
+
+  <div
+    id="moduleModal"
+    class="modal-bg"
+    hidden
+  >
+
+    <section class="modal">
+
+      <header class="modal-head">
+
+        <h2
+          id="moduleModalTitle"
+        >
+          Módulo
+        </h2>
+
+        <button
+          id="moduleModalClose"
+          class="close"
+          type="button"
+          aria-label="Close"
+        >
+          ×
+        </button>
+
+      </header>
+
+      <div
+        id="moduleModalBody"
+        class="modal-body"
+      ></div>
+
+    </section>
+
   </div>
-  <div id="fatalMessage" class="message"></div><div id="toast" class="toast"></div>
+
+
+  <!-- =====================================================
+       GLOBAL MESSAGES
+       ===================================================== -->
+
+  <div
+    id="fatalMessage"
+    class="message"
+  ></div>
+
+  <div
+    id="toast"
+    class="toast"
+  ></div>
+
+
+  <!-- =====================================================
+       SCRIPTS
+       ===================================================== -->
+
+  <script src="./i18n.js"></script>
+
   <script src="./firebase-config.js"></script>
-  <script type="module" src="./app.js"></script>
+
+  <script
+    type="module"
+    src="./app.js"
+  ></script>
+
 </body>
+
 </html>
