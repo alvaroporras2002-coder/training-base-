@@ -8,7 +8,13 @@ import {
   collection, query, where, onSnapshot, getDocs, writeBatch,
   serverTimestamp, increment
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-import { CASES, MODULES, getCase, getModule, buildCertificationBank } from "./academy-data.js";
+import {
+  CASES,
+  MODULES,
+  getCase,
+  getModule,
+  buildCertificationBank
+} from "./academy-data-i18n.js";
 
 const config = window.TRAINING_FIREBASE_CONFIG || {};
 const settings = window.TRAINING_APP_SETTINGS || {};
@@ -119,7 +125,7 @@ const fmtDate = value => {
 
   return d
     ? new Intl.DateTimeFormat(
-        "es",
+        window.TRAINING_I18N?.getLanguage?.() || "en",
         {
           dateStyle: "medium",
           timeStyle: "short"
@@ -133,7 +139,7 @@ const fmtDay = value => {
 
   return d
     ? new Intl.DateTimeFormat(
-        "es",
+        window.TRAINING_I18N?.getLanguage?.() || "en",
         {
           dateStyle: "medium"
         }
@@ -270,19 +276,73 @@ function allowedEmail(email){
 }
 
 function languageFromBrowser(){
+  const selected =
+    window.TRAINING_I18N?.getLanguage?.();
+
+  if(
+    selected === "en" ||
+    selected === "es" ||
+    selected === "fr"
+  ){
+    return selected;
+  }
+
   const code =
     String(navigator.language || "en")
       .toLowerCase();
 
   if(code.startsWith("es")){
-    return "Spanish";
+    return "es";
   }
 
   if(code.startsWith("fr")){
-    return "French";
+    return "fr";
   }
 
-  return "English";
+  return "en";
+}
+
+async function syncUserLanguage(
+  user,
+  explicitLanguage = null
+){
+  if(!user){
+    return;
+  }
+
+  const selected =
+    explicitLanguage ||
+    window.TRAINING_I18N?.getLanguage?.() ||
+    "en";
+
+  const language =
+    selected === "es" ||
+    selected === "fr"
+      ? selected
+      : "en";
+
+  try{
+    await setDoc(
+      doc(
+        db,
+        names.registrations,
+        user.uid
+      ),
+      {
+        language,
+        updatedAt:
+          serverTimestamp()
+      },
+      {
+        merge: true
+      }
+    );
+  }catch(error){
+    console.warn(
+      "Language sync failed",
+      error
+    );
+  }
 }
 
 async function adminRecord(user){
@@ -383,6 +443,15 @@ async function ensureRegistration(user){
       ? snap.data()
       : {};
 
+  if(
+    old.language &&
+    window.TRAINING_I18N?.adoptRemoteLanguage
+  ){
+    window.TRAINING_I18N.adoptRemoteLanguage(
+      old.language
+    );
+  }
+
   const visitKey =
     `dd_academy_visit_${user.uid}`;
 
@@ -430,7 +499,6 @@ async function ensureRegistration(user){
       "",
 
     language:
-      old.language ||
       languageFromBrowser(),
 
     status:
@@ -522,6 +590,10 @@ async function requireUser(){
 
   const reg =
     await ensureRegistration(user);
+
+  await syncUserLanguage(
+    user
+  );
 
   return {
     user,
@@ -992,6 +1064,23 @@ function assignmentComplete(
 
   return false;
 }
+
+window.addEventListener(
+  "training-language-change",
+  event => {
+    const user =
+      auth.currentUser;
+
+    if(!user){
+      return;
+    }
+
+    syncUserLanguage(
+      user,
+      event.detail?.language
+    );
+  }
+);
 
 async function initLogin(){
   const status =
@@ -1745,7 +1834,7 @@ async function initAcademy(){
       <div class="list-row">
         <div class="list-main">
           <b>Idioma</b>
-          <span>${esc(reg.language || "English")}</span>
+          <span>${esc(reg.language || "en")}</span>
         </div>
       </div>
 
@@ -1806,11 +1895,11 @@ async function initAcademy(){
                 <div class="list-main">
 
                   <b>
-                    Caso ${id}: ${esc(c.es.title)}
+                    Caso ${id}: ${esc(c.active?.title || c.es.title)}
                   </b>
 
                   <span>
-                    ${esc(c.es.context)}
+                    ${esc(c.active?.context || c.es.context)}
                   </span>
 
                 </div>
@@ -2502,7 +2591,8 @@ async function initCertification(){
 
   const bank =
     buildCertificationBank(
-      "es"
+      window.TRAINING_I18N?.getLanguage?.() ||
+      "en"
     );
 
   let exam = null;
@@ -2550,27 +2640,27 @@ async function initCertification(){
     }
   }
 
-function showSection(name) {
-  setHidden(
-    "certIntro",
-    name !== "intro"
-  );
+  function showSection(name) {
+    setHidden(
+      "certIntro",
+      name !== "intro"
+    );
 
-  setHidden(
-    "certExam",
-    name !== "exam"
-  );
+    setHidden(
+      "certExam",
+      name !== "exam"
+    );
 
-  setHidden(
-    "certSubmitting",
-    name !== "submitting"
-  );
+    setHidden(
+      "certSubmitting",
+      name !== "submitting"
+    );
 
-  setHidden(
-    "certResult",
-    name !== "result"
-  );
-}
+    setHidden(
+      "certResult",
+      name !== "result"
+    );
+  }
 
   function saveExam(){
     if(exam){
@@ -2989,7 +3079,8 @@ function showSection(name) {
       );
 
     return new Intl.DateTimeFormat(
-      "es",
+      window.TRAINING_I18N?.getLanguage?.() ||
+      "en",
       {
         dateStyle:
           "medium",
@@ -3720,24 +3811,74 @@ ${xrefOffset}
   }
 
   setClick(
-  "startCertification",
-  startExam
-);
+    "startCertification",
+    startExam
+  );
 
-const questionOptions =
-  $("questionOptions");
+  const questionOptions =
+    $("questionOptions");
 
-if (questionOptions) {
-  questionOptions.addEventListener(
-    "click",
-    event => {
-      const button =
-        event.target.closest(
-          "[data-answer]"
+  if (questionOptions) {
+    questionOptions.addEventListener(
+      "click",
+      event => {
+        const button =
+          event.target.closest(
+            "[data-answer]"
+          );
+
+        if (
+          !button ||
+          !exam ||
+          submitting
+        ) {
+          return;
+        }
+
+        const qs =
+          questions();
+
+        const q =
+          qs[exam.index];
+
+        if (!q) {
+          return;
+        }
+
+        exam.answers[q.id] =
+          button.dataset.answer;
+
+        saveExam();
+        renderExam();
+      }
+    );
+  }
+
+  setClick(
+    "prevQuestion",
+    () => {
+      if (
+        !exam ||
+        submitting
+      ) {
+        return;
+      }
+
+      exam.index =
+        Math.max(
+          0,
+          exam.index - 1
         );
 
+      saveExam();
+      renderExam();
+    }
+  );
+
+  setClick(
+    "nextQuestion",
+    () => {
       if (
-        !button ||
         !exam ||
         submitting
       ) {
@@ -3747,79 +3888,29 @@ if (questionOptions) {
       const qs =
         questions();
 
-      const q =
-        qs[exam.index];
+      if (
+        exam.index >=
+        qs.length - 1
+      ) {
+        finishExam(false);
+      } else {
+        exam.index++;
 
-      if (!q) {
-        return;
+        saveExam();
+        renderExam();
       }
-
-      exam.answers[q.id] =
-        button.dataset.answer;
-
-      saveExam();
-      renderExam();
     }
   );
-}
 
-setClick(
-  "prevQuestion",
-  () => {
-    if (
-      !exam ||
-      submitting
-    ) {
-      return;
-    }
+  setClick(
+    "retryCertification",
+    startExam
+  );
 
-    exam.index =
-      Math.max(
-        0,
-        exam.index - 1
-      );
-
-    saveExam();
-    renderExam();
-  }
-);
-
-setClick(
-  "nextQuestion",
-  () => {
-    if (
-      !exam ||
-      submitting
-    ) {
-      return;
-    }
-
-    const qs =
-      questions();
-
-    if (
-      exam.index >=
-      qs.length - 1
-    ) {
-      finishExam(false);
-    } else {
-      exam.index++;
-
-      saveExam();
-      renderExam();
-    }
-  }
-);
-
-setClick(
-  "retryCertification",
-  startExam
-);
-
-setClick(
-  "downloadCertificate",
-  downloadCertificatePdf
-);
+  setClick(
+    "downloadCertificate",
+    downloadCertificatePdf
+  );
 
   if(
     exam &&
@@ -4951,7 +5042,8 @@ async function initAdmin(){
 
     const bank =
       buildCertificationBank(
-        "es"
+        window.TRAINING_I18N?.getLanguage?.() ||
+        "en"
       );
 
     const bankMap =
@@ -5170,7 +5262,7 @@ async function initAdmin(){
 
     $("editLanguage").value =
       u.language ||
-      "English";
+      "en";
 
     $("editTeam").value =
       u.teamId ||
@@ -5772,7 +5864,7 @@ async function initAdmin(){
               ? getModule(
                   moduleId
                 ).title
-              : `Caso ${caseId}: ${getCase(caseId).es.title}`;
+              : `Caso ${caseId}: ${getCase(caseId).active?.title || getCase(caseId).es.title}`;
       }
 
       try{
