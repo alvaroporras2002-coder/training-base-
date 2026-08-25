@@ -270,6 +270,51 @@
         "La console d'administration peut voir qui est actuellement connecté."
     },
 
+    "login.checking": {
+      en: "Checking your session...",
+      es: "Comprobando tu sesión...",
+      fr: "Vérification de votre session..."
+    },
+
+    "login.connecting": {
+      en: "Connecting...",
+      es: "Conectando...",
+      fr: "Connexion..."
+    },
+
+    "login.note": {
+      en:
+        "Your Google password is never stored on this site. Authentication is handled by Firebase Authentication. Optional fields such as team, market or preferences can be edited later and do not block access.",
+
+      es:
+        "Tu contraseña de Google nunca se guarda en este sitio. La autenticación la gestiona Firebase Authentication. Los campos opcionales como equipo, mercado o preferencias pueden editarse después, pero no bloquean el acceso.",
+
+      fr:
+        "Votre mot de passe Google n'est jamais stocké sur ce site. L'authentification est gérée par Firebase Authentication. Les champs facultatifs tels que l'équipe, le marché ou les préférences peuvent être modifiés plus tard et ne bloquent pas l'accès."
+    },
+
+    "login.ready": {
+      en:
+        "Session ready. Opening training...",
+
+      es:
+        "Sesión lista. Abriendo el entrenamiento...",
+
+      fr:
+        "Session prête. Ouverture de la formation..."
+    },
+
+    "login.openingGoogle": {
+      en:
+        "Opening Google...",
+
+      es:
+        "Abriendo Google...",
+
+      fr:
+        "Ouverture de Google..."
+    },
+
     /* =========================
        ACADEMY
        ========================= */
@@ -382,9 +427,14 @@
     },
 
     "academy.notTaken": {
-      en: "You have not completed the certification yet.",
-      es: "Aún no has realizado la certificación.",
-      fr: "Vous n'avez pas encore effectué la certification."
+      en:
+        "You have not completed the certification yet.",
+
+      es:
+        "Aún no has realizado la certificación.",
+
+      fr:
+        "Vous n'avez pas encore effectué la certification."
     },
 
     "academy.openCertification": {
@@ -508,9 +558,14 @@
     },
 
     "cert.progressSaved": {
-      en: "Your progress is saved automatically.",
-      es: "Tu progreso se guarda automáticamente.",
-      fr: "Votre progression est enregistrée automatiquement."
+      en:
+        "Your progress is saved automatically.",
+
+      es:
+        "Tu progreso se guarda automáticamente.",
+
+      fr:
+        "Votre progression est enregistrée automatiquement."
     },
 
     "cert.submit": {
@@ -587,7 +642,7 @@
     "cert.downloadResult": {
       en: "Download result PDF",
       es: "Descargar resultado PDF",
-      fr: "Télécharger le PDF du résultat"
+      fr: "Télécharger le PDF du resultado"
     },
 
     "cert.retry": {
@@ -754,9 +809,14 @@
     },
 
     "sim.intact": {
-      en: "The large simulator file remains intact",
-      es: "El archivo grande permanece intacto",
-      fr: "Le fichier principal du simulateur reste intact"
+      en:
+        "The large simulator file remains intact",
+
+      es:
+        "El archivo grande permanece intacto",
+
+      fr:
+        "Le fichier principal du simulateur reste intact"
     },
 
     "sim.syncing": {
@@ -900,6 +960,87 @@
 
       fr:
         "Profil réinitialisé. La personne peut se reconnecter avec Google."
+    },
+
+    /* =========================
+       LOGIN STATUS + ERRORS
+       ========================= */
+
+    "errors.popupClosed": {
+      en:
+        "The Google window was closed before sign-in was completed.",
+
+      es:
+        "Se cerró la ventana de Google antes de completar el acceso.",
+
+      fr:
+        "La fenêtre Google a été fermée avant la fin de la connexion."
+    },
+
+    "errors.popupBlocked": {
+      en:
+        "Your browser blocked the Google window. Allow pop-ups for this site and try again.",
+
+      es:
+        "El navegador bloqueó la ventana de Google. Permite ventanas emergentes para este sitio e inténtalo de nuevo.",
+
+      fr:
+        "Votre navigateur a bloqué la fenêtre Google. Autorisez les fenêtres contextuelles pour ce site et réessayez."
+    },
+
+    "errors.unauthorizedDomain": {
+      en:
+        "This domain is not authorized in Firebase Authentication.",
+
+      es:
+        "Este dominio no está autorizado en Firebase Authentication.",
+
+      fr:
+        "Ce domaine n'est pas autorisé dans Firebase Authentication."
+    },
+
+    "errors.permissionDenied": {
+      en:
+        "Firestore rejected the request. Check the security rules.",
+
+      es:
+        "Firestore rechazó la solicitud. Revisa las reglas de seguridad.",
+
+      fr:
+        "Firestore a refusé la demande. Vérifiez les règles de sécurité."
+    },
+
+    "errors.firebaseConfig": {
+      en:
+        "Firebase configuration is missing.",
+
+      es:
+        "Falta la configuración de Firebase.",
+
+      fr:
+        "La configuration Firebase est manquante."
+    },
+
+    "errors.blocked": {
+      en:
+        "Your training access is blocked. Contact the administrator.",
+
+      es:
+        "Tu acceso al entrenamiento está bloqueado. Contacta al administrador.",
+
+      fr:
+        "Votre accès à la formation est bloqué. Contactez l'administrateur."
+    },
+
+    "errors.generic": {
+      en:
+        "Unable to sign in.",
+
+      es:
+        "No se pudo iniciar sesión.",
+
+      fr:
+        "Impossible de se connecter."
     }
   };
 
@@ -908,6 +1049,7 @@
      ========================================================= */
 
   function normalizeLanguage(value) {
+
     const language =
       String(value || "")
         .trim()
@@ -918,6 +1060,7 @@
       language === "spanish" ||
       language === "español"
     ) {
+
       return "es";
     }
 
@@ -926,6 +1069,7 @@
       language === "french" ||
       language === "français"
     ) {
+
       return "fr";
     }
 
@@ -933,6 +1077,7 @@
   }
 
   function browserLanguage() {
+
     const language =
       String(
         navigator.language ||
@@ -940,11 +1085,21 @@
         "en"
       ).toLowerCase();
 
-    if (language.startsWith("es")) {
+    if (
+      language.startsWith(
+        "es"
+      )
+    ) {
+
       return "es";
     }
 
-    if (language.startsWith("fr")) {
+    if (
+      language.startsWith(
+        "fr"
+      )
+    ) {
+
       return "fr";
     }
 
@@ -952,12 +1107,14 @@
   }
 
   function getLanguage() {
+
     const saved =
       localStorage.getItem(
         STORAGE_KEY
       );
 
     if (saved) {
+
       return normalizeLanguage(
         saved
       );
@@ -971,10 +1128,12 @@
     language = getLanguage(),
     fallback = ""
   ) {
+
     const item =
       TRANSLATIONS[key];
 
     if (!item) {
+
       return fallback || key;
     }
 
@@ -1000,6 +1159,7 @@
     element,
     language
   ) {
+
     if (!element) {
       return;
     }
@@ -1010,6 +1170,7 @@
       );
 
     if (textKey) {
+
       element.textContent =
         getText(
           textKey,
@@ -1024,6 +1185,7 @@
       );
 
     if (htmlKey) {
+
       element.innerHTML =
         getText(
           htmlKey,
@@ -1038,8 +1200,10 @@
       );
 
     if (placeholderKey) {
+
       element.setAttribute(
         "placeholder",
+
         getText(
           placeholderKey,
           language,
@@ -1056,8 +1220,10 @@
       );
 
     if (titleKey) {
+
       element.setAttribute(
         "title",
+
         getText(
           titleKey,
           language,
@@ -1074,8 +1240,10 @@
       );
 
     if (ariaKey) {
+
       element.setAttribute(
         "aria-label",
+
         getText(
           ariaKey,
           language,
@@ -1090,6 +1258,7 @@
   function applyTranslations(
     root = document
   ) {
+
     const language =
       getLanguage();
 
@@ -1097,8 +1266,11 @@
       language;
 
     if (
+      typeof Element !==
+      "undefined" &&
       root instanceof Element
     ) {
+
       translateElement(
         root,
         language
@@ -1106,8 +1278,10 @@
     }
 
     if (
+      root &&
       root.querySelectorAll
     ) {
+
       root
         .querySelectorAll(
           [
@@ -1120,6 +1294,7 @@
         )
         .forEach(
           element => {
+
             translateElement(
               element,
               language
@@ -1136,12 +1311,15 @@
      ========================================================= */
 
   function createSelector() {
+
     if (
       document.getElementById(
         "languageSwitcher"
       )
     ) {
+
       updateSelectors();
+
       return;
     }
 
@@ -1169,6 +1347,7 @@
         class="training-language-select"
         aria-label="Language"
       >
+
         <option value="en">
           English
         </option>
@@ -1180,6 +1359,7 @@
         <option value="fr">
           Français
         </option>
+
       </select>
     `;
 
@@ -1187,12 +1367,15 @@
       document.querySelector(
         ".top-actions"
       ) ||
+
       document.querySelector(
         ".topbar"
       ) ||
+
       document.querySelector(
         "header"
       ) ||
+
       document.body;
 
     if (
@@ -1201,10 +1384,13 @@
         "top-actions"
       )
     ) {
+
       target.prepend(
         wrapper
       );
+
     } else {
+
       target.appendChild(
         wrapper
       );
@@ -1221,6 +1407,7 @@
     selector.addEventListener(
       "change",
       event => {
+
         setLanguage(
           event.target.value
         );
@@ -1229,6 +1416,7 @@
   }
 
   function updateSelectors() {
+
     const language =
       getLanguage();
 
@@ -1238,6 +1426,7 @@
       )
       .forEach(
         selector => {
+
           selector.value =
             language;
         }
@@ -1252,6 +1441,7 @@
     language,
     dispatch = true
   ) {
+
     const normalized =
       normalizeLanguage(
         language
@@ -1270,6 +1460,7 @@
     );
 
     if (dispatch) {
+
       window.dispatchEvent(
         new CustomEvent(
           "training-language-change",
@@ -1293,12 +1484,14 @@
   function adoptRemoteLanguage(
     language
   ) {
+
     const existing =
       localStorage.getItem(
         STORAGE_KEY
       );
 
     if (existing) {
+
       return getLanguage();
     }
 
@@ -1315,6 +1508,7 @@
      ========================================================= */
 
   function observeDynamicContent() {
+
     if (!document.body) {
       return;
     }
@@ -1322,18 +1516,22 @@
     const observer =
       new MutationObserver(
         mutations => {
+
           for (
             const mutation
             of mutations
           ) {
+
             for (
               const node
               of mutation.addedNodes
             ) {
+
               if (
                 node.nodeType ===
                 Node.ELEMENT_NODE
               ) {
+
                 applyTranslations(
                   node
                 );
@@ -1362,11 +1560,13 @@
   function translateIframe(
     frame
   ) {
+
     if (!frame) {
       return;
     }
 
     try {
+
       const iframeDocument =
         frame.contentDocument;
 
@@ -1382,13 +1582,12 @@
         );
 
       /*
-       * Later we will connect the large Merchant Portal
-       * simulator to the same translation dictionary.
-       *
-       * For now this establishes the shared language state
-       * without modifying the large simulator file.
+       * The large Merchant Portal simulator
+       * will later use this shared language state.
        */
+
     } catch (error) {
+
       console.warn(
         "[i18n] Could not access iframe:",
         error
@@ -1397,15 +1596,18 @@
   }
 
   function watchIframes() {
+
     document
       .querySelectorAll(
         "iframe"
       )
       .forEach(
         frame => {
+
           frame.addEventListener(
             "load",
             () => {
+
               translateIframe(
                 frame
               );
@@ -1424,11 +1626,13 @@
      ========================================================= */
 
   function injectStyles() {
+
     if (
       document.getElementById(
         "trainingLanguageStyles"
       )
     ) {
+
       return;
     }
 
@@ -1441,76 +1645,154 @@
       "trainingLanguageStyles";
 
     style.textContent = `
+
       .training-language-switcher {
+
         display: inline-flex;
+
         align-items: center;
+
         gap: 7px;
+
         min-height: 38px;
-        padding: 0 11px;
-        border: 1px solid #dfe2e8;
-        border-radius: 999px;
-        background: #ffffff;
-        color: #1b1c20;
-        box-shadow: 0 2px 8px rgba(20, 22, 30, 0.04);
-        flex: 0 0 auto;
+
+        padding:
+          0 11px;
+
+        border:
+          1px solid #dfe2e8;
+
+        border-radius:
+          999px;
+
+        background:
+          #ffffff;
+
+        color:
+          #1b1c20;
+
+        box-shadow:
+          0 2px 8px
+          rgba(
+            20,
+            22,
+            30,
+            0.04
+          );
+
+        flex:
+          0 0 auto;
       }
 
       .training-language-icon {
-        font-size: 14px;
-        line-height: 1;
+
+        font-size:
+          14px;
+
+        line-height:
+          1;
       }
 
       .training-language-select {
-        appearance: none;
-        -webkit-appearance: none;
-        border: 0;
-        outline: 0;
-        background: transparent;
-        color: inherit;
-        font: inherit;
-        font-size: 12px;
-        font-weight: 800;
-        cursor: pointer;
-        padding: 0 17px 0 0;
-        min-width: 76px;
+
+        appearance:
+          none;
+
+        -webkit-appearance:
+          none;
+
+        border:
+          0;
+
+        outline:
+          0;
+
+        background:
+          transparent;
+
+        color:
+          inherit;
+
+        font:
+          inherit;
+
+        font-size:
+          12px;
+
+        font-weight:
+          800;
+
+        cursor:
+          pointer;
+
+        padding:
+          0 17px 0 0;
+
+        min-width:
+          76px;
+
         background-image:
+
           linear-gradient(
             45deg,
             transparent 50%,
             #555 50%
           ),
+
           linear-gradient(
             135deg,
             #555 50%,
             transparent 50%
           );
+
         background-position:
+
           calc(100% - 8px) 50%,
+
           calc(100% - 4px) 50%;
+
         background-size:
+
           4px 4px,
+
           4px 4px;
+
         background-repeat:
           no-repeat;
       }
 
       .training-language-select option {
-        color: #16171b;
-        background: #ffffff;
+
+        color:
+          #16171b;
+
+        background:
+          #ffffff;
       }
 
-      @media (max-width: 720px) {
+      @media (
+        max-width: 720px
+      ) {
+
         .training-language-switcher {
-          min-height: 36px;
-          padding: 0 9px;
+
+          min-height:
+            36px;
+
+          padding:
+            0 9px;
         }
 
         .training-language-icon {
-          display: none;
+
+          display:
+            none;
         }
 
         .training-language-select {
-          min-width: 70px;
+
+          min-width:
+            70px;
         }
       }
     `;
@@ -1525,6 +1807,7 @@
      ========================================================= */
 
   function init() {
+
     injectStyles();
 
     document.documentElement.lang =
@@ -1546,22 +1829,32 @@
      ========================================================= */
 
   window.TRAINING_I18N = {
+
     LANGUAGES,
+
     TRANSLATIONS,
+
     STORAGE_KEY,
 
     getLanguage,
+
     setLanguage,
+
     getText,
+
     applyTranslations,
+
     normalizeLanguage,
+
     adoptRemoteLanguage,
+
     translateIframe
   };
 
   window.addEventListener(
     "training-language-change",
     () => {
+
       applyTranslations(
         document
       );
@@ -1572,6 +1865,7 @@
         )
         .forEach(
           frame => {
+
             translateIframe(
               frame
             );
@@ -1584,14 +1878,18 @@
     document.readyState ===
     "loading"
   ) {
+
     document.addEventListener(
       "DOMContentLoaded",
       init,
       {
-        once: true
+        once:
+          true
       }
     );
+
   } else {
+
     init();
   }
 
