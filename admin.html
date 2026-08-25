@@ -1,55 +1,1721 @@
 <!doctype html>
 <html lang="es">
+
 <head>
+
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="robots" content="noindex,nofollow,noarchive">
-  <title>DoorDash Training Academy — Admin</title>
-  <link rel="stylesheet" href="./academy.css">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
+
+  <meta
+    name="robots"
+    content="noindex,nofollow,noarchive"
+  >
+
+  <title>
+    DoorDash Training Academy — Admin
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="./academy.css"
+  >
+
+  <style>
+
+    /*
+      Small admin-specific language selector adjustment.
+      i18n.js creates the selector automatically.
+    */
+
+    .topbar{
+      gap:14px;
+      flex-wrap:wrap;
+    }
+
+    .admin-top-actions{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .training-language-switcher{
+      flex-shrink:0;
+    }
+
+    .form-grid .field select{
+      width:100%;
+    }
+
+    @media(max-width:760px){
+
+      .admin-top-actions{
+        width:100%;
+        justify-content:flex-start;
+      }
+
+      #adminEmail{
+        max-width:180px;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+      }
+
+    }
+
+  </style>
+
 </head>
+
+
 <body data-page="admin">
-  <section id="adminLogin" class="login-page" hidden>
-    <div class="login-card"><div class="login-hero"><div style="font-size:11px;font-weight:900;letter-spacing:.1em">DOORDASH · TRAINING</div><h1>Administración de la Academia</h1><p>Accede con una cuenta Google cuyo UID tenga un documento activo en trainingAdmins.</p></div><div class="login-body"><button id="adminGoogle" class="google"><span class="gmark">G</span>Continuar con Google</button><div id="adminLoginMessage" class="message"></div></div></div>
-  </section>
-  <section id="adminDenied" class="login-page" hidden>
-    <div class="login-card"><div class="login-body"><h2>Acceso administrativo requerido</h2><p class="muted">Tu cuenta no tiene un documento activo en <code>trainingAdmins/{uid}</code>.</p><div class="card pad"><b>UID para autorizar</b><div id="deniedUid" style="word-break:break-all;margin-top:8px"></div></div><button id="deniedLogout" class="btn red full" style="margin-top:14px">Cerrar sesión</button></div></div>
-  </section>
-  <section id="adminApp" hidden>
-    <header class="topbar"><div><div class="brand">DOORDASH</div><div class="brand-sub">Training Academy Admin</div></div><div class="spacer"></div><span id="adminRole" class="badge blue">admin</span><div class="user-id"><b id="adminName">Administrador</b><span id="adminEmail"></span></div><button id="exportAdmin" class="btn small">Exportar CSV</button><button id="adminLogout" class="btn small">Cerrar sesión</button></header>
-    <main class="main">
-      <div class="page-head"><div><h1>Administración de capacitación</h1><p>Usuarios, equipos, asignaciones, certificación, presencia y analítica en tiempo real.</p></div><div class="actions"><a class="btn" href="./academy.html">Ver Academia</a><button id="newAssignmentButton" class="btn red">Asignar entrenamiento</button></div></div>
-      <section class="grid stats">
-        <div class="stat"><span>Participantes</span><b id="aRegistered">0</b><small>Perfiles visibles</small></div>
-        <div class="stat"><span>En línea</span><b id="aOnline">0</b><small>Heartbeat activo</small></div>
-        <div class="stat"><span>Progreso medio</span><b id="aProgress">0%</b><small>Biblioteca de casos</small></div>
-        <div class="stat"><span>Aprobación cert.</span><b id="aCertRate">0%</b><small>Todos los intentos</small></div>
-        <div class="stat"><span>Tiempo total</span><b id="aTime">0 min</b><small>Sesiones registradas</small></div>
-      </section>
-      <nav id="adminTabs" class="tabs"><button class="tab active" data-tab="overview">Resumen</button><button class="tab" data-tab="users">Usuarios</button><button class="tab" data-tab="teams">Equipos</button><button class="tab" data-tab="assignments">Asignaciones</button><button class="tab" data-tab="analytics">Analítica</button></nav>
-      <section data-panel="overview">
-        <div class="two-col"><div class="card"><div class="card-head"><h2>Usuarios recientes</h2><span id="adminUserCount" class="tiny muted">0 usuarios</span></div><div class="toolbar"><input id="adminSearch" placeholder="Buscar nombre, correo, equipo, Employee ID o UID"><select id="adminTeamFilter"><option value="all">Todos los equipos</option></select><select id="adminStatusFilter"><option value="all">Todos los estados</option><option value="active">Activos</option><option value="blocked">Bloqueados</option></select></div><div class="table-wrap"><table class="table"><thead><tr><th>Usuario</th><th>Equipo</th><th>Conexión</th><th>Progreso</th><th>Score</th><th>Casos</th><th>Certificación</th><th>Tiempo</th><th>Último acceso</th><th>Acciones</th></tr></thead><tbody id="adminUserRows"></tbody></table></div></div><aside class="card pad"><h3 style="margin-top:0">Progreso por módulo</h3><div id="moduleAnalytics" class="grid"></div></aside></div>
-      </section>
-      <section data-panel="users" hidden>
-        <div class="card"><div class="card-head"><h2>Base de participantes</h2><span class="tiny muted">La tabla usa los mismos filtros del resumen.</span></div><div class="table-wrap"><table class="table"><thead><tr><th>Usuario</th><th>Equipo</th><th>Conexión</th><th>Progreso</th><th>Score</th><th>Casos</th><th>Certificación</th><th>Tiempo</th><th>Último acceso</th><th>Acciones</th></tr></thead><tbody id="adminUserRowsMirror"></tbody></table></div></div>
-      </section>
-      <section data-panel="teams" hidden>
-        <div class="two-col"><div class="card"><div class="card-head"><h2>Equipos y cohorts</h2></div><div class="table-wrap"><table class="table" style="min-width:650px"><thead><tr><th>Equipo</th><th>Cohort / Wave</th><th>Participantes</th><th>Creado</th></tr></thead><tbody id="teamRows"></tbody></table></div></div><aside><div id="createTeamTools" class="card pad"><h3 style="margin-top:0">Crear equipo</h3><div class="field"><label>Nombre del equipo</label><input id="teamName" placeholder="Ej. Wave 11"></div><div class="field" style="margin-top:10px"><label>Cohort / descripción</label><input id="teamCohort" placeholder="Ej. New Hires September"></div><button id="createTeam" class="btn red full" style="margin-top:13px">Crear equipo</button><div id="teamMessage" class="message"></div></div><div id="superAdminTools" class="card pad" style="margin-top:14px"><h3 style="margin-top:0">Crear o actualizar manager</h3><div class="field"><label>UID del manager</label><input id="managerUid" placeholder="UID de Firebase Authentication"></div><div class="field" style="margin-top:9px"><label>Nombre</label><input id="managerName"></div><div class="field" style="margin-top:9px"><label>Equipos autorizados</label><select id="managerTeams" multiple style="min-height:110px"></select></div><button id="saveManager" class="btn dark full" style="margin-top:12px">Guardar manager</button><div id="managerMessage" class="message"></div></div></aside></div>
-      </section>
-      <section data-panel="assignments" hidden>
-        <div class="card"><div class="card-head"><h2>Asignaciones</h2><button class="btn red small" onclick="document.getElementById('newAssignmentButton').click()">Nueva asignación</button></div><div class="table-wrap"><table class="table"><thead><tr><th>Asignación</th><th>Usuario</th><th>Tipo</th><th>Fecha límite</th><th>Estado</th></tr></thead><tbody id="assignmentRows"></tbody></table></div></div>
-      </section>
-      <section data-panel="analytics" hidden>
-        <div class="two-col"><div class="card pad"><h2 style="margin-top:0">Progreso por módulo</h2><div id="moduleAnalyticsMirror" class="analytics-grid"></div></div><div class="card pad"><h2 style="margin-top:0">Preguntas con más errores</h2><div id="questionAnalytics" class="list"></div></div></div>
-      </section>
-    </main>
+
+
+<!-- =====================================================
+     ADMIN LOGIN
+     ===================================================== -->
+
+<section
+  id="adminLogin"
+  class="login-page"
+  hidden
+>
+
+  <div class="login-card">
+
+    <div class="login-hero">
+
+      <div
+        style="
+          font-size:11px;
+          font-weight:900;
+          letter-spacing:.1em
+        "
+      >
+        DOORDASH · TRAINING
+      </div>
+
+      <h1
+        data-i18n="admin.title"
+      >
+        Administración de capacitación
+      </h1>
+
+      <p
+        data-i18n="admin.loginDescription"
+      >
+        Accede con una cuenta Google cuyo UID tenga un documento activo en trainingAdmins.
+      </p>
+
+    </div>
+
+
+    <div class="login-body">
+
+      <button
+        id="adminGoogle"
+        class="google"
+        type="button"
+      >
+
+        <span
+          class="gmark"
+          aria-hidden="true"
+        >
+          G
+        </span>
+
+        <span
+          data-i18n="login.google"
+        >
+          Continuar con Google
+        </span>
+
+      </button>
+
+
+      <div
+        id="adminLoginMessage"
+        class="message"
+      ></div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     ADMIN DENIED
+     ===================================================== -->
+
+<section
+  id="adminDenied"
+  class="login-page"
+  hidden
+>
+
+  <div class="login-card">
+
+    <div class="login-body">
+
+      <h2
+        data-i18n="admin.accessRequired"
+      >
+        Acceso administrativo requerido
+      </h2>
+
+      <p class="muted">
+
+        <span
+          data-i18n="admin.noAdminDocument"
+        >
+          Tu cuenta no tiene un documento activo en
+        </span>
+
+        <code>
+          trainingAdmins/{uid}
+        </code>.
+
+      </p>
+
+
+      <div class="card pad">
+
+        <b
+          data-i18n="admin.uidToAuthorize"
+        >
+          UID para autorizar
+        </b>
+
+        <div
+          id="deniedUid"
+          style="
+            word-break:break-all;
+            margin-top:8px
+          "
+        ></div>
+
+      </div>
+
+
+      <button
+        id="deniedLogout"
+        class="btn red full"
+        style="margin-top:14px"
+        type="button"
+        data-i18n="common.logout"
+      >
+        Cerrar sesión
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     ADMIN APP
+     ===================================================== -->
+
+<section
+  id="adminApp"
+  hidden
+>
+
+
+<!-- =====================================================
+     TOP BAR
+     ===================================================== -->
+
+<header class="topbar">
+
+  <div>
+
+    <div class="brand">
+      DOORDASH
+    </div>
+
+    <div class="brand-sub">
+      Training Academy Admin
+    </div>
+
+  </div>
+
+
+  <div class="spacer"></div>
+
+
+  <div class="admin-top-actions">
+
+
+    <span
+      id="adminRole"
+      class="badge blue"
+    >
+      admin
+    </span>
+
+
+    <div class="user-id">
+
+      <b id="adminName">
+        Administrador
+      </b>
+
+      <span id="adminEmail"></span>
+
+    </div>
+
+
+    <button
+      id="exportAdmin"
+      class="btn small"
+      type="button"
+      data-i18n="admin.export"
+    >
+      Exportar CSV
+    </button>
+
+
+    <button
+      id="adminLogout"
+      class="btn small"
+      type="button"
+      data-i18n="common.logout"
+    >
+      Cerrar sesión
+    </button>
+
+  </div>
+
+</header>
+
+
+<!-- =====================================================
+     MAIN
+     ===================================================== -->
+
+<main class="main">
+
+
+<!-- =====================================================
+     PAGE HEADER
+     ===================================================== -->
+
+<div class="page-head">
+
+  <div>
+
+    <h1
+      data-i18n="admin.title"
+    >
+      Administración de capacitación
+    </h1>
+
+    <p
+      data-i18n="admin.subtitle"
+    >
+      Usuarios, equipos, asignaciones, certificación, presencia y analítica en tiempo real.
+    </p>
+
+  </div>
+
+
+  <div class="actions">
+
+    <a
+      class="btn"
+      href="./academy.html"
+      data-i18n="common.academy"
+    >
+      Ver Academia
+    </a>
+
+
+    <button
+      id="newAssignmentButton"
+      class="btn red"
+      type="button"
+      data-i18n="admin.assignTraining"
+    >
+      Asignar entrenamiento
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     STATS
+     ===================================================== -->
+
+<section class="grid stats">
+
+
+  <div class="stat">
+
+    <span
+      data-i18n="admin.participants"
+    >
+      Participantes
+    </span>
+
+    <b id="aRegistered">
+      0
+    </b>
+
+    <small
+      data-i18n="admin.visibleProfiles"
+    >
+      Perfiles visibles
+    </small>
+
+  </div>
+
+
+  <div class="stat">
+
+    <span
+      data-i18n="admin.online"
+    >
+      En línea
+    </span>
+
+    <b id="aOnline">
+      0
+    </b>
+
+    <small
+      data-i18n="admin.heartbeat"
+    >
+      Heartbeat activo
+    </small>
+
+  </div>
+
+
+  <div class="stat">
+
+    <span
+      data-i18n="admin.avgProgress"
+    >
+      Progreso medio
+    </span>
+
+    <b id="aProgress">
+      0%
+    </b>
+
+    <small>
+      <span
+        data-i18n="academy.mainLibrary"
+      >
+        Biblioteca principal
+      </span>
+    </small>
+
+  </div>
+
+
+  <div class="stat">
+
+    <span
+      data-i18n="admin.certRate"
+    >
+      Tasa de aprobación
+    </span>
+
+    <b id="aCertRate">
+      0%
+    </b>
+
+    <small
+      data-i18n="admin.allAttempts"
+    >
+      Todos los intentos
+    </small>
+
+  </div>
+
+
+  <div class="stat">
+
+    <span
+      data-i18n="admin.totalTime"
+    >
+      Tiempo total
+    </span>
+
+    <b id="aTime">
+      0 min
+    </b>
+
+    <small
+      data-i18n="academy.sessions"
+    >
+      Sesiones registradas
+    </small>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     TABS
+     ===================================================== -->
+
+<nav
+  id="adminTabs"
+  class="tabs"
+>
+
+  <button
+    class="tab active"
+    data-tab="overview"
+    type="button"
+    data-i18n="admin.overview"
+  >
+    Resumen
+  </button>
+
+
+  <button
+    class="tab"
+    data-tab="users"
+    type="button"
+    data-i18n="admin.users"
+  >
+    Usuarios
+  </button>
+
+
+  <button
+    class="tab"
+    data-tab="teams"
+    type="button"
+    data-i18n="admin.teams"
+  >
+    Equipos
+  </button>
+
+
+  <button
+    class="tab"
+    data-tab="assignments"
+    type="button"
+    data-i18n="admin.assignments"
+  >
+    Asignaciones
+  </button>
+
+
+  <button
+    class="tab"
+    data-tab="analytics"
+    type="button"
+    data-i18n="admin.analytics"
+  >
+    Analítica
+  </button>
+
+</nav>
+
+
+<!-- =====================================================
+     OVERVIEW
+     ===================================================== -->
+
+<section
+  data-panel="overview"
+>
+
+  <div class="two-col">
+
+
+    <div class="card">
+
+      <div class="card-head">
+
+        <h2
+          data-i18n="admin.recentUsers"
+        >
+          Usuarios recientes
+        </h2>
+
+        <span
+          id="adminUserCount"
+          class="tiny muted"
+        >
+          0 usuarios
+        </span>
+
+      </div>
+
+
+      <div class="toolbar">
+
+        <input
+          id="adminSearch"
+          data-i18n-placeholder="admin.searchUsers"
+          placeholder="Buscar nombre, correo, equipo, Employee ID o UID"
+        >
+
+
+        <select
+          id="adminTeamFilter"
+        >
+
+          <option
+            value="all"
+            data-i18n="admin.allTeams"
+          >
+            Todos los equipos
+          </option>
+
+        </select>
+
+
+        <select
+          id="adminStatusFilter"
+        >
+
+          <option
+            value="all"
+            data-i18n="admin.allStatuses"
+          >
+            Todos los estados
+          </option>
+
+          <option
+            value="active"
+            data-i18n="admin.active"
+          >
+            Activos
+          </option>
+
+          <option
+            value="blocked"
+            data-i18n="admin.blocked"
+          >
+            Bloqueados
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="table-wrap">
+
+        <table class="table">
+
+          <thead>
+
+            <tr>
+
+              <th data-i18n="admin.user">
+                Usuario
+              </th>
+
+              <th data-i18n="profile.team">
+                Equipo
+              </th>
+
+              <th data-i18n="admin.connection">
+                Conexión
+              </th>
+
+              <th data-i18n="academy.generalProgress">
+                Progreso
+              </th>
+
+              <th>
+                Score
+              </th>
+
+              <th data-i18n="academy.completedCases">
+                Casos
+              </th>
+
+              <th data-i18n="academy.certification">
+                Certificación
+              </th>
+
+              <th data-i18n="admin.totalTime">
+                Tiempo
+              </th>
+
+              <th data-i18n="profile.lastAccess">
+                Último acceso
+              </th>
+
+              <th data-i18n="admin.actions">
+                Acciones
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody
+            id="adminUserRows"
+          ></tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+    <aside class="card pad">
+
+      <h3
+        style="margin-top:0"
+        data-i18n="admin.progressModule"
+      >
+        Progreso por módulo
+      </h3>
+
+      <div
+        id="moduleAnalytics"
+        class="grid"
+      ></div>
+
+    </aside>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     USERS
+     ===================================================== -->
+
+<section
+  data-panel="users"
+  hidden
+>
+
+  <div class="card">
+
+    <div class="card-head">
+
+      <h2
+        data-i18n="admin.userBase"
+      >
+        Base de participantes
+      </h2>
+
+      <span
+        class="tiny muted"
+        data-i18n="admin.sameFilters"
+      >
+        La tabla usa los mismos filtros del resumen.
+      </span>
+
+    </div>
+
+
+    <div class="table-wrap">
+
+      <table class="table">
+
+        <thead>
+
+          <tr>
+
+            <th data-i18n="admin.user">
+              Usuario
+            </th>
+
+            <th data-i18n="profile.team">
+              Equipo
+            </th>
+
+            <th data-i18n="admin.connection">
+              Conexión
+            </th>
+
+            <th data-i18n="academy.generalProgress">
+              Progreso
+            </th>
+
+            <th>
+              Score
+            </th>
+
+            <th data-i18n="academy.completedCases">
+              Casos
+            </th>
+
+            <th data-i18n="academy.certification">
+              Certificación
+            </th>
+
+            <th data-i18n="admin.totalTime">
+              Tiempo
+            </th>
+
+            <th data-i18n="profile.lastAccess">
+              Último acceso
+            </th>
+
+            <th data-i18n="admin.actions">
+              Acciones
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody
+          id="adminUserRowsMirror"
+        ></tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     TEAMS
+     ===================================================== -->
+
+<section
+  data-panel="teams"
+  hidden
+>
+
+  <div class="two-col">
+
+
+    <div class="card">
+
+      <div class="card-head">
+
+        <h2
+          data-i18n="admin.teams"
+        >
+          Equipos y cohorts
+        </h2>
+
+      </div>
+
+
+      <div class="table-wrap">
+
+        <table
+          class="table"
+          style="min-width:650px"
+        >
+
+          <thead>
+
+            <tr>
+
+              <th data-i18n="admin.team">
+                Equipo
+              </th>
+
+              <th data-i18n="admin.cohort">
+                Cohort / Wave
+              </th>
+
+              <th data-i18n="admin.participants">
+                Participantes
+              </th>
+
+              <th data-i18n="admin.created">
+                Creado
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody
+            id="teamRows"
+          ></tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+    <aside>
+
+
+      <!-- =============================================
+           CREATE TEAM
+           ============================================= -->
+
+      <div
+        id="createTeamTools"
+        class="card pad"
+      >
+
+        <h3
+          style="margin-top:0"
+          data-i18n="admin.createTeam"
+        >
+          Crear equipo
+        </h3>
+
+
+        <div class="field">
+
+          <label
+            data-i18n="admin.teamName"
+          >
+            Nombre del equipo
+          </label>
+
+          <input
+            id="teamName"
+            data-i18n-placeholder="admin.teamNamePlaceholder"
+            placeholder="Ej. Wave 11"
+          >
+
+        </div>
+
+
+        <div
+          class="field"
+          style="margin-top:10px"
+        >
+
+          <label
+            data-i18n="admin.cohortDescription"
+          >
+            Cohort / descripción
+          </label>
+
+          <input
+            id="teamCohort"
+            data-i18n-placeholder="admin.cohortPlaceholder"
+            placeholder="Ej. New Hires September"
+          >
+
+        </div>
+
+
+        <button
+          id="createTeam"
+          class="btn red full"
+          style="margin-top:13px"
+          type="button"
+          data-i18n="common.create"
+        >
+          Crear equipo
+        </button>
+
+
+        <div
+          id="teamMessage"
+          class="message"
+        ></div>
+
+      </div>
+
+
+      <!-- =============================================
+           MANAGER
+           ============================================= -->
+
+      <div
+        id="superAdminTools"
+        class="card pad"
+        style="margin-top:14px"
+      >
+
+        <h3
+          style="margin-top:0"
+          data-i18n="admin.manager"
+        >
+          Crear o actualizar manager
+        </h3>
+
+
+        <div class="field">
+
+          <label
+            data-i18n="admin.managerUid"
+          >
+            UID del manager
+          </label>
+
+          <input
+            id="managerUid"
+            data-i18n-placeholder="admin.managerUidPlaceholder"
+            placeholder="UID de Firebase Authentication"
+          >
+
+        </div>
+
+
+        <div
+          class="field"
+          style="margin-top:9px"
+        >
+
+          <label
+            data-i18n="admin.managerName"
+          >
+            Nombre
+          </label>
+
+          <input
+            id="managerName"
+          >
+
+        </div>
+
+
+        <div
+          class="field"
+          style="margin-top:9px"
+        >
+
+          <label
+            data-i18n="admin.authorizedTeams"
+          >
+            Equipos autorizados
+          </label>
+
+          <select
+            id="managerTeams"
+            multiple
+            style="min-height:110px"
+          ></select>
+
+        </div>
+
+
+        <button
+          id="saveManager"
+          class="btn dark full"
+          style="margin-top:12px"
+          type="button"
+          data-i18n="admin.saveManager"
+        >
+          Guardar manager
+        </button>
+
+
+        <div
+          id="managerMessage"
+          class="message"
+        ></div>
+
+      </div>
+
+    </aside>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     ASSIGNMENTS
+     ===================================================== -->
+
+<section
+  data-panel="assignments"
+  hidden
+>
+
+  <div class="card">
+
+    <div class="card-head">
+
+      <h2
+        data-i18n="admin.assignments"
+      >
+        Asignaciones
+      </h2>
+
+
+      <button
+        class="btn red small"
+        type="button"
+        onclick="
+          document
+            .getElementById(
+              'newAssignmentButton'
+            )
+            .click()
+        "
+        data-i18n="admin.newAssignment"
+      >
+        Nueva asignación
+      </button>
+
+    </div>
+
+
+    <div class="table-wrap">
+
+      <table class="table">
+
+        <thead>
+
+          <tr>
+
+            <th data-i18n="admin.assignment">
+              Asignación
+            </th>
+
+            <th data-i18n="admin.user">
+              Usuario
+            </th>
+
+            <th data-i18n="admin.type">
+              Tipo
+            </th>
+
+            <th data-i18n="admin.dueDate">
+              Fecha límite
+            </th>
+
+            <th data-i18n="admin.status">
+              Estado
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody
+          id="assignmentRows"
+        ></tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     ANALYTICS
+     ===================================================== -->
+
+<section
+  data-panel="analytics"
+  hidden
+>
+
+  <div class="two-col">
+
+
+    <div class="card pad">
+
+      <h2
+        style="margin-top:0"
+        data-i18n="admin.progressModule"
+      >
+        Progreso por módulo
+      </h2>
+
+      <div
+        id="moduleAnalyticsMirror"
+        class="analytics-grid"
+      ></div>
+
+    </div>
+
+
+    <div class="card pad">
+
+      <h2
+        style="margin-top:0"
+        data-i18n="admin.mostErrors"
+      >
+        Preguntas con más errores
+      </h2>
+
+      <div
+        id="questionAnalytics"
+        class="list"
+      ></div>
+
+    </div>
+
+  </div>
+
+</section>
+
+</main>
+
+</section>
+
+
+<!-- =====================================================
+     USER MODAL
+     ===================================================== -->
+
+<div
+  id="userModal"
+  class="modal-bg"
+  hidden
+>
+
+  <section class="modal">
+
+
+    <header class="modal-head">
+
+      <div>
+
+        <h2
+          id="userModalTitle"
+          data-i18n="admin.manageUser"
+        >
+          Administrar usuario
+        </h2>
+
+        <div
+          id="userModalSubtitle"
+          class="tiny muted"
+        ></div>
+
+      </div>
+
+
+      <button
+        id="userModalClose"
+        class="close"
+        type="button"
+        aria-label="Close"
+      >
+        ×
+      </button>
+
+    </header>
+
+
+    <div class="modal-body">
+
+      <div
+        id="userDetailStats"
+        class="analytics-grid"
+        style="margin-bottom:17px"
+      ></div>
+
+
+      <div class="form-grid">
+
+
+        <div class="field">
+
+          <label
+            data-i18n="admin.name"
+          >
+            Nombre
+          </label>
+
+          <input
+            id="editName"
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label
+            data-i18n="admin.email"
+          >
+            Correo
+          </label>
+
+          <input
+            id="editEmail"
+            type="email"
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label
+            data-i18n="profile.role"
+          >
+            Rol
+          </label>
+
+          <input
+            id="editRole"
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label
+            data-i18n="admin.employeeId"
+          >
+            Employee ID
+          </label>
+
+          <input
+            id="editEmployee"
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label
+            data-i18n="profile.team"
+          >
+            Equipo
+          </label>
+
+          <select
+            id="editTeam"
+          >
+
+            <option
+              value="all"
+              data-i18n="admin.unassigned"
+            >
+              Sin asignar
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="field">
+
+          <label
+            data-i18n="admin.country"
+          >
+            País / ubicación
+          </label>
+
+          <input
+            id="editCountry"
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label
+            data-i18n="profile.language"
+          >
+            Idioma
+          </label>
+
+          <!-- IMPORTANT:
+               app.js expects en / es / fr
+          -->
+
+          <select
+            id="editLanguage"
+          >
+
+            <option value="en">
+              English
+            </option>
+
+            <option value="es">
+              Español
+            </option>
+
+            <option value="fr">
+              Français
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="field">
+
+          <label
+            data-i18n="admin.accessStatus"
+          >
+            Estado de acceso
+          </label>
+
+          <select
+            id="editAccess"
+          >
+
+            <option
+              value="active"
+              data-i18n="admin.active"
+            >
+              Activo
+            </option>
+
+            <option
+              value="blocked"
+              data-i18n="admin.blocked"
+            >
+              Bloqueado
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="field wide">
+
+          <label
+            data-i18n="admin.accessMessage"
+          >
+            Mensaje de acceso
+          </label>
+
+          <textarea
+            id="editMessage"
+          ></textarea>
+
+        </div>
+
+
+        <div class="field wide">
+
+          <label
+            data-i18n="admin.privateNotes"
+          >
+            Notas privadas
+          </label>
+
+          <textarea
+            id="editNotes"
+          ></textarea>
+
+        </div>
+
+      </div>
+
+
+      <div
+        id="userModalMessage"
+        class="message"
+      ></div>
+
+    </div>
+
+
+    <footer class="modal-foot">
+
+      <button
+        id="resetUser"
+        class="btn danger"
+        type="button"
+        data-i18n="admin.resetProfile"
+      >
+        Reiniciar perfil y progreso
+      </button>
+
+
+      <div class="spacer"></div>
+
+
+      <button
+        id="userModalCancel"
+        class="btn"
+        type="button"
+        data-i18n="common.cancel"
+      >
+        Cancelar
+      </button>
+
+
+      <button
+        id="saveUser"
+        class="btn red"
+        type="button"
+        data-i18n="common.save"
+      >
+        Guardar cambios
+      </button>
+
+    </footer>
+
   </section>
 
-  <div id="userModal" class="modal-bg" hidden><section class="modal"><header class="modal-head"><div><h2 id="userModalTitle">Administrar usuario</h2><div id="userModalSubtitle" class="tiny muted"></div></div><button id="userModalClose" class="close">×</button></header><div class="modal-body"><div id="userDetailStats" class="analytics-grid" style="margin-bottom:17px"></div><div class="form-grid"><div class="field"><label>Nombre</label><input id="editName"></div><div class="field"><label>Correo</label><input id="editEmail" type="email"></div><div class="field"><label>Rol</label><input id="editRole"></div><div class="field"><label>Employee ID</label><input id="editEmployee"></div><div class="field"><label>Equipo</label><select id="editTeam"><option value="all">Sin asignar</option></select></div><div class="field"><label>País / ubicación</label><input id="editCountry"></div><div class="field"><label>Idioma</label><select id="editLanguage"><option>English</option><option>Spanish</option><option>French</option></select></div><div class="field"><label>Estado de acceso</label><select id="editAccess"><option value="active">Activo</option><option value="blocked">Bloqueado</option></select></div><div class="field wide"><label>Mensaje de acceso</label><textarea id="editMessage"></textarea></div><div class="field wide"><label>Notas privadas</label><textarea id="editNotes"></textarea></div></div><div id="userModalMessage" class="message"></div></div><footer class="modal-foot"><button id="resetUser" class="btn danger">Reiniciar perfil y progreso</button><div class="spacer"></div><button id="userModalCancel" class="btn">Cancelar</button><button id="saveUser" class="btn red">Guardar cambios</button></footer></section></div>
+</div>
 
-  <div id="assignmentModal" class="modal-bg" hidden><section class="modal" style="width:min(680px,96vw)"><header class="modal-head"><h2>Asignar entrenamiento</h2><button id="assignmentModalClose" class="close">×</button></header><div class="modal-body"><div class="form-grid"><div class="field wide"><label>Usuario</label><select id="assignmentUser"></select></div><div class="field"><label>Tipo</label><select id="assignmentType"><option value="module">Módulo</option><option value="case">Caso específico</option><option value="certification">Certificación</option></select></div><div class="field"><label>Fecha límite</label><input id="assignmentDue" type="date"></div><div id="assignmentModuleField" class="field wide"><label>Módulo</label><select id="assignmentModule"></select></div><div id="assignmentCaseField" class="field wide" hidden><label>Número de caso (1–20)</label><input id="assignmentCase" type="number" min="1" max="20" value="1"></div><div class="field wide"><label>Título opcional</label><input id="assignmentTitle" placeholder="El sistema generará uno si lo dejas vacío"></div></div><div id="assignmentMessage" class="message"></div></div><footer class="modal-foot"><button id="assignmentModalCancel" class="btn">Cancelar</button><button id="saveAssignment" class="btn red">Asignar</button></footer></section></div>
 
-  <div id="fatalMessage" class="message"></div><div id="toast" class="toast"></div>
-  <script src="./firebase-config.js"></script>
-  <script type="module" src="./app.js"></script>
+<!-- =====================================================
+     ASSIGNMENT MODAL
+     ===================================================== -->
+
+<div
+  id="assignmentModal"
+  class="modal-bg"
+  hidden
+>
+
+  <section
+    class="modal"
+    style="
+      width:min(
+        680px,
+        96vw
+      )
+    "
+  >
+
+
+    <header class="modal-head">
+
+      <h2
+        data-i18n="admin.assignTraining"
+      >
+        Asignar entrenamiento
+      </h2>
+
+      <button
+        id="assignmentModalClose"
+        class="close"
+        type="button"
+      >
+        ×
+      </button>
+
+    </header>
+
+
+    <div class="modal-body">
+
+      <div class="form-grid">
+
+
+        <div class="field wide">
+
+          <label
+            data-i18n="admin.user"
+          >
+            Usuario
+          </label>
+
+          <select
+            id="assignmentUser"
+          ></select>
+
+        </div>
+
+
+        <div class="field">
+
+          <label
+            data-i18n="admin.type"
+          >
+            Tipo
+          </label>
+
+          <select
+            id="assignmentType"
+          >
+
+            <option
+              value="module"
+              data-i18n="admin.module"
+            >
+              Módulo
+            </option>
+
+            <option
+              value="case"
+              data-i18n="admin.specificCase"
+            >
+              Caso específico
+            </option>
+
+            <option
+              value="certification"
+              data-i18n="academy.certification"
+            >
+              Certificación
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="field">
+
+          <label
+            data-i18n="admin.dueDate"
+          >
+            Fecha límite
+          </label>
+
+          <input
+            id="assignmentDue"
+            type="date"
+          >
+
+        </div>
+
+
+        <div
+          id="assignmentModuleField"
+          class="field wide"
+        >
+
+          <label
+            data-i18n="admin.module"
+          >
+            Módulo
+          </label>
+
+          <select
+            id="assignmentModule"
+          ></select>
+
+        </div>
+
+
+        <div
+          id="assignmentCaseField"
+          class="field wide"
+          hidden
+        >
+
+          <label
+            data-i18n="admin.caseNumber"
+          >
+            Número de caso (1–20)
+          </label>
+
+          <input
+            id="assignmentCase"
+            type="number"
+            min="1"
+            max="20"
+            value="1"
+          >
+
+        </div>
+
+
+        <div class="field wide">
+
+          <label
+            data-i18n="admin.optionalTitle"
+          >
+            Título opcional
+          </label>
+
+          <input
+            id="assignmentTitle"
+            data-i18n-placeholder="admin.titlePlaceholder"
+            placeholder="El sistema generará uno si lo dejas vacío"
+          >
+
+        </div>
+
+      </div>
+
+
+      <div
+        id="assignmentMessage"
+        class="message"
+      ></div>
+
+    </div>
+
+
+    <footer class="modal-foot">
+
+      <button
+        id="assignmentModalCancel"
+        class="btn"
+        type="button"
+        data-i18n="common.cancel"
+      >
+        Cancelar
+      </button>
+
+
+      <button
+        id="saveAssignment"
+        class="btn red"
+        type="button"
+        data-i18n="common.assign"
+      >
+        Asignar
+      </button>
+
+    </footer>
+
+  </section>
+
+</div>
+
+
+<!-- =====================================================
+     GLOBAL MESSAGES
+     ===================================================== -->
+
+<div
+  id="fatalMessage"
+  class="message"
+></div>
+
+<div
+  id="toast"
+  class="toast"
+></div>
+
+
+<!-- =====================================================
+     SCRIPTS
+     ===================================================== -->
+
+<script src="./i18n.js"></script>
+
+<script src="./firebase-config.js"></script>
+
+<script
+  type="module"
+  src="./app.js"
+></script>
+
+
 </body>
+
 </html>
